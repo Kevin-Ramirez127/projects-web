@@ -807,6 +807,10 @@ html[data-theme="light"] .tg-phone {
   opacity: 0.65;
 }
 
+.tg-composer input:read-only {
+  cursor: default;
+}
+
 .tg-composer #phone-send {
   display: grid;
   place-items: center;

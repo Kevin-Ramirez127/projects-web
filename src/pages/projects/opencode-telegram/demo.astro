@@ -478,8 +478,9 @@ const description =
         stageStatus.innerHTML = `<span class="demo-live-dot"></span> ${esc(text)}`;
       };
 
-      const setComposer = (enabled: boolean, value = '') => {
+      const setComposer = (enabled: boolean, value = '', readOnly = false) => {
         phoneInput.disabled = !enabled;
+        phoneInput.readOnly = enabled && readOnly;
         phoneSend.disabled = !enabled;
         phoneInput.placeholder = 'Message';
         phoneInput.value = value;
@@ -1066,7 +1067,7 @@ const description =
         setComputerStatus('idle', 'waiting for a prompt');
         setStageStatus('waiting', 'waiting for you');
         addComputerLine('status', 'waiting for a prompt from Telegram', myRun, { instant: true });
-        setComposer(true, 'Run the tests and fix any failures.');
+        setComposer(true, 'Run the tests and fix any failures.', true);
         phoneSend.classList.add('is-attention');
         await wait(300);
         if (!isActive(myRun)) return;

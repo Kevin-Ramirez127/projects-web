@@ -89,8 +89,8 @@ from Telegram, and bot commands.
   and phone buttons are all animated with Motion and CSS.
 - Questions and permissions are real interactions: tap an option on the phone
   and the computer session continues or stops.
-- The prompt scenario enables the phone composer, so you can type your own
-  instruction and send it to the simulated session.
+- The prompt scenario preloads a read-only instruction and pulses the send
+  button; tap send to run it in the simulated session.
 - The Telegram `Menu` button is available only in the Bot commands scenario,
   where it becomes a rounded `#64B5EF` pill. It pulses the first time that
   scenario opens, then lists `/session`, `/settings`, `/exit`, `/agents`,
