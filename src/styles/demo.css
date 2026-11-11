@@ -838,22 +838,27 @@ html[data-theme="light"] .tg-phone {
 }
 
 .tg-composer #phone-send.is-attention {
-  outline: 2px solid var(--tg-in-text);
-  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--tg-in-text);
   animation: tg-send-pulse 1.35s ease-in-out infinite;
 }
 
 @keyframes tg-send-pulse {
   0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--tg-accent) 75%, transparent);
+    box-shadow:
+      0 0 0 2px var(--tg-in-text),
+      0 0 0 2px color-mix(in srgb, var(--tg-accent) 75%, transparent);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 0 10px transparent;
+    box-shadow:
+      0 0 0 2px var(--tg-in-text),
+      0 0 0 12px transparent;
     transform: scale(1.1);
   }
   100% {
-    box-shadow: 0 0 0 0 transparent;
+    box-shadow:
+      0 0 0 2px var(--tg-in-text),
+      0 0 0 2px transparent;
     transform: scale(1);
   }
 }
@@ -1460,7 +1465,9 @@ html[data-theme="light"] .tg-phone {
   }
 
   .tg-composer #phone-send.is-attention {
-    box-shadow: 0 0 0 2px var(--tg-accent);
+    box-shadow:
+      0 0 0 2px var(--tg-in-text),
+      0 0 0 4px var(--tg-accent);
   }
 
   .demo-scenario,
