@@ -32,11 +32,20 @@ const scenarios = [
     description: 'Send a new instruction to the bound session.',
   },
   {
-    id: 'failed',
+    id: 'commands',
     number: '05',
-    title: 'Session failed',
-    description: 'A failure arrives with the error tail.',
+    title: 'Bot commands',
+    description: 'Open the menu and run a command from the phone.',
   },
+];
+
+const phoneCommands = [
+  { id: 'bind', command: '/bind', description: 'Bind this chat to a session.' },
+  { id: 'settings', command: '/settings', description: 'Show notification settings.' },
+  { id: 'exit', command: '/exit', description: 'Stop the Telegram daemon.' },
+  { id: 'agents', command: '/agents', description: 'Switch the bound session agent.' },
+  { id: 'models', command: '/models', description: 'Choose a chat model.' },
+  { id: 'usage', command: '/usage', description: 'Show OpenCode usage limits.' },
 ];
 
 const title = 'opencode-telegram — Interactive demo';
@@ -165,12 +174,33 @@ const description =
                 </div>
 
                 <div id="phone-composer" class="tg-composer">
+                  <button id="tg-menu-btn" class="tg-menu-btn" type="button" aria-expanded="false" aria-controls="tg-command-menu">
+                    <svg class="tg-menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+                    <span>Menu</span>
+                  </button>
                   <svg class="tg-composer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M8.5 14.5s1.2 1.8 3.5 1.8 3.5-1.8 3.5-1.8" /><path d="M9 9.5h.01M15 9.5h.01" stroke-width="2.2" /></svg>
                   <input id="phone-input" type="text" disabled placeholder="Message" aria-label="Message the agent" autocomplete="off" />
                   <svg class="tg-composer-attach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 11.5-8.5 8.5a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10 18.5a2 2 0 0 1-3-3l8-8" /></svg>
                   <button id="phone-send" type="button" disabled aria-label="Send message">
                     <TelegramPlane />
                   </button>
+                </div>
+
+                <div id="tg-command-backdrop" class="tg-command-backdrop" aria-hidden="true"></div>
+                <div id="tg-command-menu" class="tg-command-menu" aria-hidden="true" inert>
+                  <div class="tg-command-handle" aria-hidden="true"></div>
+                  <div class="tg-command-head">
+                    <span class="tg-command-title">Menu</span>
+                    <button id="tg-command-close" class="tg-command-close" type="button" aria-label="Close menu">×</button>
+                  </div>
+                  <div class="tg-command-list" role="menu" aria-label="Bot commands">
+                    {phoneCommands.map((command) => (
+                      <button type="button" class="tg-command-item" data-command={command.id} role="menuitem">
+                        <span class="tg-command-name">{command.command}</span>
+                        <span class="tg-command-desc">{command.description}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <div id="phone-notification" class="demo-notification" role="status" aria-live="polite">
@@ -284,6 +314,11 @@ const description =
     const stage = byId<HTMLElement>('demo-stage');
     const computerFeed = byId<HTMLElement>('computer-feed');
     const phoneFeed = byId<HTMLElement>('phone-feed');
+    const commandMenu = byId<HTMLElement>('tg-command-menu');
+    const commandBackdrop = byId<HTMLElement>('tg-command-backdrop');
+    const commandMenuBtn = byId<HTMLButtonElement>('tg-menu-btn');
+    const commandClose = byId<HTMLButtonElement>('tg-command-close');
+    const commandItems = Array.from(document.querySelectorAll<HTMLButtonElement>('.tg-command-item'));
     const computerStatus = byId<HTMLElement>('computer-status');
     const stageStatus = byId<HTMLElement>('demo-stage-status');
     const caption = byId<HTMLElement>('demo-caption');
@@ -317,6 +352,8 @@ const description =
       let started = false;
       let currentScenario = 'finished';
       let pendingPrompt: ((value: string) => void) | null = null;
+      let pendingCommandSelection: ((value: string) => void) | null = null;
+      let commandMenuOpen = false;
       let notificationTimer: number | undefined;
 
       const isActive = (id: number) => id === runId;
@@ -332,8 +369,74 @@ const description =
           return map[character] ?? character;
         });
 
+      const COMMANDS: Record<
+        string,
+        {
+          command: string;
+          html: string;
+          actions?: { label: string; value: string }[];
+          followUp?: (label: string, value: string) => string;
+        }
+      > = {
+        bind: {
+          command: '/bind',
+          html: '<p class="demo-msg-title">Bind a session</p><p class="demo-msg-body">Usage: /bind &lt;session-id&gt;. Send /sessions to pick one.</p>',
+        },
+        settings: {
+          command: '/settings',
+          html: '<p class="demo-msg-title">Notification settings</p><p class="demo-msg-body">Enabled: on<br>Session finished: on<br>Session failed: on<br>Question asked: on<br>Permission asked: on</p>',
+        },
+        exit: {
+          command: '/exit',
+          html: '<p class="demo-msg-title">Stop daemon?</p><p class="demo-msg-body">OpenCode keeps running; only the Telegram notifier stops.</p>',
+          actions: [
+            { label: 'Stop daemon', value: 'stop daemon' },
+            { label: 'Cancel', value: 'cancel' },
+          ],
+          followUp: (_label, value) =>
+            value === 'stop daemon' ? '✅ opencode-telegram daemon stopped.' : 'Cancelled.',
+        },
+        agents: {
+          command: '/agents',
+          html: '<p class="demo-msg-title">Agents for postal-ui</p><p class="demo-msg-body">Current: build</p>',
+          actions: [
+            { label: '✓ Build', value: 'build' },
+            { label: 'Plan', value: 'plan' },
+            { label: 'General', value: 'general' },
+          ],
+          followUp: (label) => `Agent switched to ${label}.`,
+        },
+        models: {
+          command: '/models',
+          html: '<p class="demo-msg-title">Available models (3)</p><p class="demo-msg-body">Current: Big Pickle</p>',
+          actions: [
+            { label: '✓ Big Pickle', value: 'big pickle' },
+            { label: 'GPT-5.1 Codex', value: 'gpt-5.1-codex' },
+            { label: 'Claude Sonnet 4.5', value: 'claude-sonnet-4.5' },
+          ],
+          followUp: (label) => `Model switched to ${label}.`,
+        },
+        usage: {
+          command: '/usage',
+          html: '<p class="demo-msg-title">OpenCode usage limits</p><p class="demo-msg-body">Workspace: OpenCode Console<br>Go · Rolling 42% · Weekly 18% · Monthly 9%<br>Console budget: $12.40 / $50</p>',
+        },
+      };
+
       const scrollFeed = (feed: HTMLElement) => {
         feed.scrollTop = feed.scrollHeight;
+      };
+
+      const setCommandMenu = (open: boolean, moveFocus = true) => {
+        commandMenuOpen = open;
+        commandMenu.classList.toggle('is-open', open);
+        commandBackdrop.classList.toggle('is-open', open);
+        commandMenu.setAttribute('aria-hidden', String(!open));
+        commandMenu.inert = !open;
+        commandMenuBtn.setAttribute('aria-expanded', String(open));
+        if (moveFocus) {
+          if (open) commandItems[0]?.focus();
+          else commandMenuBtn.focus();
+        }
       };
 
       const setComputerStatus = (tone: string, text: string) => {
@@ -367,6 +470,8 @@ const description =
 
       function resetStage() {
         pendingPrompt = null;
+        pendingCommandSelection = null;
+        setCommandMenu(false, false);
         if (notificationTimer) window.clearTimeout(notificationTimer);
         notification.classList.remove('is-show');
         computerFeed.innerHTML = '';
@@ -438,26 +543,6 @@ const description =
         resultLine.textContent = result;
         if (failed) resultLine.style.color = 'var(--color-bone)';
         body.append(commandLine, resultLine);
-        line.append(glyph, body);
-        computerFeed.append(line);
-        scrollFeed(computerFeed);
-        play(line, { opacity: [0, 1], y: [6, 0] }, { duration: MOTION.duration.fast, ease: MOTION.ease.out });
-      }
-
-      function addComputerError(title: string, detail: string, myRun: number) {
-        if (!isActive(myRun)) return;
-        const line = document.createElement('div');
-        line.className = 'oc-line oc-line--error';
-        const glyph = document.createElement('span');
-        glyph.className = 'oc-glyph';
-        glyph.textContent = '!';
-        const body = document.createElement('div');
-        body.className = 'min-w-0';
-        const heading = document.createElement('strong');
-        heading.textContent = title;
-        const text = document.createElement('div');
-        text.textContent = detail;
-        body.append(heading, text);
         line.append(glyph, body);
         computerFeed.append(line);
         scrollFeed(computerFeed);
@@ -649,6 +734,80 @@ const description =
           submitPrompt();
         }
       });
+
+      function waitForCommandSelection(myRun: number): Promise<string> {
+        return new Promise((resolve) => {
+          pendingCommandSelection = (id) => {
+            if (isActive(myRun)) resolve(id);
+          };
+        });
+      }
+
+      async function playBotCommand(id: string, myRun: number) {
+        const command = COMMANDS[id];
+        if (!command || !isActive(myRun)) return;
+
+        addPhoneUser(command.command, myRun);
+        await wait(250);
+        if (!isActive(myRun)) return;
+        await showTyping(myRun, 550);
+        if (!isActive(myRun)) return;
+
+        const { buttons } = addPhoneBot(command.html, { actions: command.actions }, myRun);
+        if (!command.actions || command.actions.length === 0) return;
+
+        buttons.forEach((button) => {
+          button.addEventListener(
+            'click',
+            () => {
+              if (!isActive(myRun)) return;
+              buttons.forEach((item) => {
+                item.disabled = true;
+              });
+              button.classList.add('is-picked');
+              const label = (button.textContent ?? '').replace('✓ ', '').trim();
+              const value = button.dataset.value ?? '';
+              const followUp = command.followUp?.(label, value) ?? '';
+              if (!followUp) return;
+              void (async () => {
+                await wait(220);
+                if (!isActive(myRun)) return;
+                addPhoneBot(`<p class="demo-msg-body">${esc(followUp)}</p>`, {}, myRun);
+              })();
+            },
+            { once: true },
+          );
+        });
+      }
+
+      function handleCommandSelection(id: string) {
+        if (!COMMANDS[id]) return;
+        setCommandMenu(false);
+        const myRun = runId;
+        if (pendingCommandSelection) {
+          const resolve = pendingCommandSelection;
+          pendingCommandSelection = null;
+          resolve(id);
+          return;
+        }
+        void playBotCommand(id, myRun);
+      }
+
+      async function playCommands(myRun: number) {
+        setComputerStatus('idle', 'session idle');
+        setStageStatus('waiting', 'waiting for you');
+        addComputerLine('status', 'session idle · waiting for a Telegram command', myRun, { instant: true });
+        setCommandMenu(true);
+
+        const commandId = await waitForCommandSelection(myRun);
+        if (!isActive(myRun)) return;
+
+        setStageStatus('live', 'working');
+        await playBotCommand(commandId, myRun);
+        if (!isActive(myRun)) return;
+        setComputerStatus('idle', 'session idle');
+        setStageStatus('done', 'complete');
+      }
 
       async function playFinished(myRun: number) {
         setComputerStatus('live', 'session running');
@@ -863,50 +1022,6 @@ const description =
         );
       }
 
-      async function playFailed(myRun: number) {
-        setComputerStatus('live', 'session running');
-        await wait(300);
-        if (!isActive(myRun)) return;
-        addComputerLine('user', 'Run the full release build.', myRun);
-        await wait(400);
-        if (!isActive(myRun)) return;
-        addComputerLine('assistant', 'Running the release build.', myRun, { type: true });
-        await wait(650);
-        if (!isActive(myRun)) return;
-        addComputerTool('cargo build --release', '✕ build failed · 48s', myRun, true);
-        await wait(350);
-        if (!isActive(myRun)) return;
-        addComputerError('error[E0308]: mismatched types', 'expected `String`, found `&str` · crates/postal-core/src/store/chats.rs:184', myRun);
-        await wait(350);
-        if (!isActive(myRun)) return;
-        addComputerLine('status', 'session failed · 48s', myRun);
-        setComputerStatus('failed', 'session failed');
-        setStageStatus('failed', 'failed');
-        showNotification('Session failed', 'cargo build --release — mismatched types');
-        await wait(400);
-        if (!isActive(myRun)) return;
-        await showTyping(myRun, 600);
-        if (!isActive(myRun)) return;
-        const { buttons } = addPhoneBot(
-          `<p class="demo-msg-title">Session failed</p><p class="demo-msg-body">The release build failed after 48s.</p><code class="demo-msg-code">error[E0308]: mismatched types</code>`,
-          {
-            label: 'opencode-telegram',
-            actions: [{ label: 'Show error tail', value: 'show error tail' }],
-          },
-          myRun,
-        );
-        const choice = await waitForChoice(buttons, myRun);
-        if (!isActive(myRun)) return;
-        addPhoneUser(choice === 'show error tail' ? 'Show error tail' : choice, myRun);
-        await wait(250);
-        if (!isActive(myRun)) return;
-        addPhoneBot(
-          `<p class="demo-msg-body">expected <code>String</code>, found <code>&amp;str</code></p><p class="demo-msg-body">at crates/postal-core/src/store/chats.rs:184</p>`,
-          {},
-          myRun,
-        );
-      }
-
       async function runScenario(id: string, initial = false) {
         started = true;
         currentScenario = id;
@@ -959,10 +1074,8 @@ const description =
           case 'prompt':
             await playPrompt(myRun);
             break;
-          case 'failed':
-            endTone = 'failed';
-            endLabel = 'failed';
-            await playFailed(myRun);
+          case 'commands':
+            await playCommands(myRun);
             break;
           case 'finished':
           default:
@@ -974,6 +1087,32 @@ const description =
           setStageStatus(endTone, endLabel);
         }
       }
+
+      commandMenuBtn.addEventListener('click', () => {
+        setCommandMenu(!commandMenuOpen);
+      });
+
+      commandClose.addEventListener('click', () => {
+        setCommandMenu(false);
+      });
+
+      commandBackdrop.addEventListener('click', () => {
+        setCommandMenu(false);
+      });
+
+      commandItems.forEach((item) => {
+        item.addEventListener('click', () => {
+          const id = item.dataset.command;
+          if (id) handleCommandSelection(id);
+        });
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && commandMenuOpen) {
+          event.preventDefault();
+          setCommandMenu(false);
+        }
+      });
 
       scenarioButtons.forEach((button) => {
         button.addEventListener('click', () => {

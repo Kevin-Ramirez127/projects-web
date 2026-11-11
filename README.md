@@ -83,7 +83,7 @@ reorders the case-study navigation.
 `/projects/opencode-telegram/demo/` is a fully client-side simulation of the
 daemon. It shows an OpenCode session next to a Telegram phone and lets you pick
 five interactions: session finished, agent question, permission request, prompt
-from Telegram, and session failure.
+from Telegram, and bot commands.
 
 - The scenario menu, message feeds, notification banner, typed computer output
   and phone buttons are all animated with Motion and CSS.
@@ -91,6 +91,10 @@ from Telegram, and session failure.
   and the computer session continues or stops.
 - The prompt scenario enables the phone composer, so you can type your own
   instruction and send it to the simulated session.
+- The Telegram `Menu` button opens the bot command list: `/bind`, `/settings`,
+  `/exit`, `/agents`, `/models` (three models) and `/usage`. Selecting one sends
+  the command and returns a bot response; `/models`, `/agents` and `/exit` also
+  expose inline actions.
 - No raster images are used. The phone, terminal, icons and logos are CSS and
   inline SVG.
 - Reduced motion skips the animations but keeps every scenario playable, and
