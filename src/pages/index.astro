@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import GlobalRails from '../components/GlobalRails.astro';
+import BracketLink from '../components/BracketLink.astro';
+import ProjectRow from '../components/ProjectRow.astro';
+import ContributionCard from '../components/ContributionCard.astro';
+import Footer from '../components/Footer.astro';
+import { contributions, mainProjects, projectPath, projects } from '../lib/projects';
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Projects and open-source contributions',
+    itemListElement: projects.map((project, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: project.name,
+      url: new URL(projectPath(project.slug), Astro.site ?? 'https://projects.ramirezkevin.dev').toString(),
+      description: project.summary,
+    })),
+  },
+];
+---
+<BaseLayout path="/" jsonLd={jsonLd}>
+  <Nav />
+  <GlobalRails />
+  <main id="main" class="relative z-10">
+    <section id="top" class="relative min-h-[92vh] flex flex-col overflow-hidden">
+      <div class="relative mx-auto w-full max-w-6xl px-6 md:px-10 flex-1 flex flex-col justify-center pt-28 pb-16">
+        <p data-hero class="font-matrix text-xs md:text-sm tracking-[0.25em] text-bone-faint mb-6">...SELECTED WORK / 2026...</p>
+        <h1 data-hero class="text-[18vw] sm:text-6xl md:text-7xl lg:text-8xl xl:text-[9rem] font-extralight leading-[0.95] tracking-tight text-bone">
+          Projects<span class="text-accent">.</span>
+        </h1>
+
+        <div data-hero class="mt-9 grid lg:grid-cols-[1.5fr_1fr] gap-8 lg:gap-16 max-w-4xl">
+          <div class="border-l border-bone/60 pl-5 md:pl-6">
+            <p class="text-lg md:text-[22px] leading-snug text-bone/90 font-light">
+              Five tools I designed, built and maintain — plus three open-source projects I'm proud to have contributed to.
+            </p>
+          </div>
+          <div class="font-matrix text-xs leading-loose text-bone-faint">
+            <p><span class="text-accent">05</span> &nbsp;main projects</p>
+            <p><span class="text-accent">03</span> &nbsp;open-source projects</p>
+            <p><span class="text-accent">Go · Rust · Astro</span> &nbsp;most used</p>
+          </div>
+        </div>
+
+        <div data-hero class="mt-10 flex flex-col sm:flex-row gap-4 sm:gap-8 text-[22px] md:text-[26px] font-light">
+          <BracketLink href="#projects" label="Main projects" />
+          <BracketLink href="#contributions" label="Open source" />
+        </div>
+      </div>
+
+      <div class="relative pb-8 flex justify-center">
+        <span aria-hidden="true" class="dot-matrix-solid scroll-hint font-matrix text-sm tracking-[0.3em]">...Scroll...</span>
+      </div>
+    </section>
+
+    <section id="projects" class="relative overflow-hidden">
+      <div class="relative mx-auto max-w-6xl px-6 md:px-10 py-20 md:py-28">
+        <p class="reveal font-matrix text-xs tracking-[0.25em] text-bone-faint">...MAIN PROJECTS...</p>
+        <h2 class="reveal mt-3 text-5xl md:text-6xl font-extralight tracking-tight">Built end to end</h2>
+        <p class="reveal mt-5 max-w-2xl text-bone/85 font-light leading-relaxed">
+          These are the projects where I own the whole shape: the idea, the interface, the internals, the install story and the maintenance. Most of them are developer tools, because that is the software I know best.
+        </p>
+
+        <div class="mt-12 border-t hairline">
+          {mainProjects.map((project, index) => (
+            <ProjectRow project={project} index={index} />
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section id="contributions" class="relative overflow-hidden">
+      <div class="relative mx-auto max-w-6xl px-6 md:px-10 py-20 md:py-28">
+        <p class="reveal font-matrix text-xs tracking-[0.25em] text-bone-faint">...OPEN SOURCE...</p>
+        <h2 class="reveal mt-3 text-5xl md:text-6xl font-extralight tracking-tight">Built with others</h2>
+        <p class="reveal mt-5 max-w-2xl text-bone/85 font-light leading-relaxed">
+          I contribute to projects I use and believe in. The work is usually interface polish, native desktop behaviour, or the unglamorous correctness that makes software trustworthy after the demo.
+        </p>
+
+        <div class="reveal mt-12 grid gap-px bg-line border hairline lg:grid-cols-3">
+          {contributions.map((project, index) => (
+            <ContributionCard project={project} index={index} />
+          ))}
+        </div>
+
+        <p class="reveal mt-8 max-w-2xl text-sm text-bone-faint font-light leading-relaxed">
+          A contribution is not a solo project. The maintainers set the direction, review every change, and carry the long-term weight. I'm grateful they let me help.
+        </p>
+      </div>
+    </section>
+
+    <Footer />
+  </main>
+</BaseLayout>

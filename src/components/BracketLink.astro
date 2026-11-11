@@ -1,0 +1,16 @@
+---
+interface Props {
+  href: string;
+  label: string;
+  external?: boolean;
+  size?: string;
+  className?: string;
+}
+
+const { href, label, external = false, size = 'text-xl', className = '' } = Astro.props;
+const rel = external ? 'noreferrer' : undefined;
+const target = external ? '_blank' : undefined;
+---
+<a href={href} target={target} rel={rel} class={`bracket-link w-fit ${size} ${className}`}>
+  <span class="br">[</span><span>{label}</span><span class="br">]</span><span class="fill-wipe" aria-hidden="true"><span class="br">[</span><span>{label}</span><span class="br">]</span></span>
+</a>

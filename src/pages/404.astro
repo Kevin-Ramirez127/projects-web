@@ -1,0 +1,26 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import BracketLink from '../components/BracketLink.astro';
+---
+<BaseLayout title="Page not found — Kevin Ramirez" description="That page does not exist. The projects are still here." path="/404" noindex>
+  <Nav />
+  <main id="main" class="relative z-10">
+    <section id="top" class="relative min-h-screen flex flex-col overflow-hidden">
+      <div class="relative mx-auto w-full max-w-6xl px-6 md:px-10 flex-1 flex flex-col justify-center pt-28 pb-16">
+        <p data-hero class="font-matrix text-xs md:text-sm tracking-[0.25em] text-bone-faint mb-6">...LOST?...</p>
+        <h1 data-hero class="text-[24vw] sm:text-8xl md:text-9xl font-extralight leading-none tracking-tight text-bone">404<span class="text-accent">.</span></h1>
+        <p data-hero class="mt-8 max-w-xl text-lg md:text-[22px] leading-snug text-bone/90 font-light">
+          This page doesn't exist. The projects are still here, though.
+        </p>
+        <div data-hero class="mt-10 flex flex-col sm:flex-row gap-4 sm:gap-8 text-[22px] md:text-[26px] font-light">
+          <BracketLink href="/" label="Back to projects" />
+          <BracketLink href="/#contributions" label="Open source" />
+        </div>
+      </div>
+      <div class="relative pb-8 flex justify-center">
+        <span aria-hidden="true" class="dot-matrix-solid scroll-hint font-matrix text-sm tracking-[0.3em]">...Scroll...</span>
+      </div>
+    </section>
+  </main>
+</BaseLayout>

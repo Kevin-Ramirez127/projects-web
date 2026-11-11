@@ -1,0 +1,97 @@
+---
+// Single fixed dot-matrix rail for the whole page (desktop).
+// Lives on the RIGHT, spanning to mid-screen. Each column holds its word at
+// a different vertical level (top / middle / bottom), words only.
+// Order MUST match the <section> order in src/pages/index.astro:
+// top → projects → contributions → contact.
+const RAILS = [
+  { id: 'top', words: ['projects', 'build', 'linux'] },
+  { id: 'projects', words: ['shipped', 'go · rust', 'tools'] },
+  { id: 'contributions', words: ['open source', 'with others', 'upstream'] },
+  { id: 'contact', words: ['keep in touch', 'github', 'linkedin'] },
+];
+// Per-column level for the word + extra nudge (col0 sits a little lower).
+// Cells are CSS grids (NOT absolute positioning: inset-y-* maps to the wrong
+// physical axis under vertical-rl, and absolute-only cells collapse to zero
+// width).
+const LAYOUT = [
+  { align: 'self-start', offset: 'mt-10' }, // word top, nudged down
+  { align: 'self-center', offset: '' }, // word middle
+  { align: 'self-end', offset: 'mb-10' }, // word bottom, nudged up
+];
+const WORD_CLASS = 'vertical-rl rotate-180 dot-matrix-lg text-[40px] lg:text-[52px] leading-none whitespace-nowrap select-none';
+// Full-height dotted column rendered BEHIND the word; the word's solid
+// backdrop covers (masks) the dots where they overlap.
+const DOTS = '.'.repeat(48);
+const DOTS_CLASS = 'vertical-rl dot-matrix-lg dot-matrix-dim text-[40px] lg:text-[52px] leading-none whitespace-nowrap select-none';
+---
+<div aria-hidden="true" class="pointer-events-none fixed inset-y-0 right-0 z-0 hidden min-[1400px]:block w-1/2 overflow-hidden">
+  <div class="absolute inset-y-0 right-10 lg:right-16 flex items-center justify-end gap-12 lg:gap-20">
+    {RAILS[0].words.map((_, col) => (
+      <div class="h-[70vh] overflow-hidden" data-rail-slot>
+        <div class="rail-strip flex flex-col" data-rail-strip={col}>
+          {RAILS.map((s) => (
+            <div class="rail-cell grid h-[70vh] shrink-0">
+              <span aria-hidden="true" class={`${DOTS_CLASS} justify-self-center self-start`}>{DOTS}</span>
+              <span class={`${WORD_CLASS} justify-self-center ${LAYOUT[col].align} ${LAYOUT[col].offset} relative bg-ink px-3 py-6`}>{s.words[col]}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<script>
+  import { animate } from 'motion';
+  import { MOTION } from '../lib/motion-config.ts';
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const slots = Array.from(document.querySelectorAll('[data-rail-slot]'));
+  const strips = Array.from(document.querySelectorAll('[data-rail-strip]')) as HTMLElement[];
+  const sections = Array.from(document.querySelectorAll('main section[id]'));
+  let active = 0;
+
+  const slotH = () => slots[0]?.clientHeight ?? Math.round(window.innerHeight * 0.7);
+
+  function place(i: number, instant: boolean) {
+    active = i;
+    strips.forEach((strip, col) => {
+      const y = -i * slotH();
+      if (instant || reduceMotion) {
+        strip.style.transform = `translateY(${y}px)`;
+        return;
+      }
+      try {
+        animate(
+          strip,
+          { y },
+          { duration: MOTION.duration.base, ease: MOTION.ease.out, delay: col * 0.06 },
+        );
+      } catch {
+        strip.style.transform = `translateY(${y}px)`;
+      }
+    });
+  }
+
+  if (sections.length > 0 && strips.length > 0) {
+    // whichever section crosses the viewport middle becomes active
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const i = sections.indexOf(entry.target);
+          if (i !== -1 && i !== active) place(i, false);
+        });
+      },
+      { rootMargin: '-45% 0px -45% 0px' },
+    );
+    sections.forEach((s) => io.observe(s));
+
+    let resizeTimer: number | undefined;
+    window.addEventListener('resize', () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => place(active, true), 150);
+    });
+  }
+</script>

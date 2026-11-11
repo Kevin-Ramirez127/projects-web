@@ -1,0 +1,229 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Nav from '../../components/Nav.astro';
+import BracketLink from '../../components/BracketLink.astro';
+import { projectPath, projects, type Project } from '../../lib/projects';
+
+export function getStaticPaths() {
+  return projects.map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+const isContribution = project.kind === 'contribution';
+const index = projects.findIndex((entry) => entry.slug === project.slug);
+const next = projects[(index + 1) % projects.length];
+
+const facts = [
+  { label: 'Role', value: project.role },
+  { label: 'Year', value: project.year },
+  { label: isContribution ? 'Upstream' : 'Status', value: isContribution ? project.owner ?? project.status : project.status },
+  { label: 'Language', value: project.language },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareSourceCode',
+    name: project.name,
+    description: project.summary,
+    codeRepository: project.links[0]?.href,
+    programmingLanguage: project.language,
+    ...(isContribution
+      ? { contributor: { '@type': 'Person', name: 'Kevin Ramirez' } }
+      : { author: { '@type': 'Person', name: 'Kevin Ramirez' } }),
+  },
+];
+---
+<BaseLayout
+  title={`${project.name} — Kevin Ramirez`}
+  description={project.summary}
+  path={projectPath(project.slug)}
+  type="article"
+  jsonLd={jsonLd}
+>
+  <Nav />
+
+  <main id="main" class="relative z-10">
+    <section id="top" class="relative overflow-hidden">
+      <div class="mx-auto max-w-6xl px-6 md:px-10 pt-28 md:pt-36 pb-12 md:pb-16">
+        <a href="/#projects" class="reveal inline-flex items-center gap-2 font-matrix text-[11px] tracking-[0.2em] text-bone-faint hover:text-accent transition-colors">
+          <span aria-hidden="true">←</span> ALL PROJECTS
+        </a>
+
+        <p data-hero class="mt-10 font-matrix text-xs tracking-[0.25em] text-bone-faint">
+          {isContribution ? '...OPEN SOURCE CONTRIBUTION...' : '...MAIN PROJECT...'} / {String(index + 1).padStart(2, '0')}
+        </p>
+
+        <div data-hero class="mt-4 flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
+          <h1 class="text-[12vw] sm:text-6xl md:text-7xl lg:text-8xl font-extralight leading-[0.98] tracking-tight text-bone break-words">
+            {project.name}
+          </h1>
+          <span class="mb-2 font-matrix text-[10px] tracking-[0.2em] border border-accent/30 text-accent px-2.5 py-1.5">{project.status}</span>
+        </div>
+
+        <p data-hero class="mt-6 max-w-3xl text-xl md:text-2xl leading-snug text-bone/90 font-light">{project.tagline}</p>
+
+        <div data-hero class="mt-8 flex flex-col sm:flex-row sm:flex-wrap gap-4 sm:gap-7 text-lg md:text-xl font-light">
+          {project.links.map((link) => (
+            <BracketLink href={link.href} label={link.label} external={link.external} />
+          ))}
+        </div>
+
+        <dl data-hero class="mt-12 grid grid-cols-2 lg:grid-cols-4 gap-px bg-line border hairline">
+          {facts.map((fact) => (
+            <div class="bg-ink p-5 md:p-6">
+              <dt class="font-matrix text-[10px] tracking-[0.2em] text-bone-faint">{fact.label.toUpperCase()}</dt>
+              <dd class="mt-2 text-sm text-bone font-light leading-relaxed">{fact.value}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <div data-hero class="mt-6 flex flex-wrap gap-2 lg:hidden">
+          {project.stack.map((tag) => (
+            <span class="font-matrix text-[11px] border hairline px-2.5 py-1 text-bone-dim">{tag}</span>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <div class="mx-auto max-w-6xl px-6 md:px-10 pb-20 md:pb-28">
+      <div class="grid lg:grid-cols-[minmax(0,1fr)_17rem] gap-12 lg:gap-20">
+        <article class="min-w-0">
+          <section class="reveal max-w-3xl">
+            <p class="font-matrix text-xs tracking-[0.25em] text-bone-faint">...OVERVIEW...</p>
+            <h2 class="mt-3 text-3xl md:text-4xl font-extralight tracking-tight">What it is</h2>
+            {project.intro.map((paragraph) => (
+              <p class="mt-5 text-[17px] md:text-lg leading-relaxed text-bone/85 font-light" set:html={paragraph} />
+            ))}
+          </section>
+
+          {isContribution && project.contribution && (
+            <>
+              <section class="reveal mt-16 border-l-2 border-accent/60 pl-5 md:pl-8">
+                <p class="font-matrix text-xs tracking-[0.25em] text-bone-faint">...MY CONTRIBUTION...</p>
+                <h2 class="mt-3 text-3xl md:text-4xl font-extralight tracking-tight">What I worked on</h2>
+                {project.contribution.intro.map((paragraph) => (
+                  <p class="mt-5 text-[17px] md:text-lg leading-relaxed text-bone/85 font-light" set:html={paragraph} />
+                ))}
+
+                <div class="mt-8 flex flex-wrap gap-x-10 gap-y-6 border-t hairline pt-6">
+                  {project.contribution.commits !== undefined && (
+                    <div>
+                      <div class="text-4xl font-extralight text-bone">{project.contribution.commits}</div>
+                      <div class="mt-1 font-matrix text-[10px] tracking-[0.18em] text-bone-faint">COMMITS</div>
+                    </div>
+                  )}
+                  {project.contribution.mergedPrs !== undefined && (
+                    <div>
+                      <div class="text-4xl font-extralight text-bone">{project.contribution.mergedPrs}</div>
+                      <div class="mt-1 font-matrix text-[10px] tracking-[0.18em] text-bone-faint">MERGED PULL REQUESTS</div>
+                    </div>
+                  )}
+                  <div>
+                    <div class="text-4xl font-extralight text-bone">{project.year}</div>
+                    <div class="mt-1 font-matrix text-[10px] tracking-[0.18em] text-bone-faint">YEAR</div>
+                  </div>
+                </div>
+              </section>
+
+              <div class="mt-10 border-t hairline">
+                {project.contribution.work.map((item, itemIndex) => (
+                  <section class="reveal grid grid-cols-[2.5rem_minmax(0,1fr)] gap-4 border-b hairline py-6">
+                    <span class="pt-1 font-matrix text-[11px] tracking-[0.2em] text-bone-faint">{String(itemIndex + 1).padStart(2, '0')}</span>
+                    <div>
+                      <h3 class="text-xl font-normal text-bone">{item.title}</h3>
+                      <p class="mt-2 text-[16px] leading-relaxed text-bone/80 font-light" set:html={item.body} />
+                    </div>
+                  </section>
+                ))}
+              </div>
+
+              <p class="reveal mt-8 max-w-2xl border-l hairline pl-4 text-sm leading-relaxed text-bone-faint font-light">
+                {project.contribution.note}
+              </p>
+
+              {project.contribution.prUrl && (
+                <div class="reveal mt-8">
+                  <BracketLink href={project.contribution.prUrl} label="See the pull requests" external size="text-lg" />
+                </div>
+              )}
+            </>
+          )}
+
+          {!isContribution && project.sections?.map((section) => (
+            <section class="reveal mt-16 max-w-3xl">
+              <h2 class="text-3xl md:text-4xl font-extralight tracking-tight">{section.title}</h2>
+              {section.body?.map((paragraph) => (
+                <p class="mt-5 text-[17px] md:text-lg leading-relaxed text-bone/85 font-light" set:html={paragraph} />
+              ))}
+              {section.items && (
+                <ul class="mt-7 border-t hairline">
+                  {section.items.map((item, itemIndex) => (
+                    <li class="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-4 border-b hairline py-5">
+                      <span class="pt-1 font-matrix text-[11px] tracking-[0.2em] text-bone-faint">{String(itemIndex + 1).padStart(2, '0')}</span>
+                      <div>
+                        <h3 class="text-lg font-normal text-bone">{item.title}</h3>
+                        <p class="mt-1.5 text-[16px] leading-relaxed text-bone/80 font-light" set:html={item.body} />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          ))}
+
+          <nav class="reveal mt-20 border-t hairline pt-8 flex flex-wrap items-end justify-between gap-6">
+            <div>
+              <p class="font-matrix text-[10px] tracking-[0.25em] text-bone-faint">...NEXT...</p>
+              <a href={projectPath(next.slug)} class="group mt-2 inline-flex items-baseline gap-3">
+                <span class="text-3xl md:text-4xl font-extralight tracking-tight text-bone group-hover:text-accent transition-colors">{next.name}</span>
+                <span class="text-accent" aria-hidden="true">→</span>
+              </a>
+              <p class="mt-2 max-w-md text-sm text-bone-faint font-light leading-relaxed">{next.tagline}</p>
+            </div>
+            <BracketLink href="/#projects" label="All projects" />
+          </nav>
+        </article>
+
+        <aside class="reveal hidden lg:block">
+          <div class="lg:sticky lg:top-28 border-t hairline pt-6">
+            <p class="font-matrix text-[10px] tracking-[0.25em] text-bone-faint">...STACK...</p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              {project.stack.map((tag) => (
+                <span class="font-matrix text-[11px] border hairline px-2.5 py-1 text-bone-dim">{tag}</span>
+              ))}
+            </div>
+
+            <p class="mt-10 font-matrix text-[10px] tracking-[0.25em] text-bone-faint">...LINKS...</p>
+            <ul class="mt-4 space-y-3">
+              {project.links.map((link) => (
+                <li>
+                  <a
+                    href={link.href}
+                    target={link.external ? '_blank' : undefined}
+                    rel={link.external ? 'noreferrer' : undefined}
+                    class="group inline-flex items-baseline gap-2 text-sm text-bone/85 hover:text-accent transition-colors"
+                  >
+                    <span>{link.label}</span>
+                    {link.external && <span aria-hidden="true" class="text-[10px] text-bone-faint group-hover:text-accent">↗</span>}
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+            <p class="mt-10 font-matrix text-[10px] tracking-[0.25em] text-bone-faint">...ROLE...</p>
+            <p class="mt-3 text-sm leading-relaxed text-bone/85 font-light">{project.role}</p>
+            <p class="mt-1 text-sm leading-relaxed text-bone-faint font-light">{project.year} · {project.status}</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+</BaseLayout>

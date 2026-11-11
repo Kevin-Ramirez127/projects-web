@@ -1,0 +1,45 @@
+---
+import BracketLink from './BracketLink.astro';
+import { projectPath, type Project } from '../lib/projects';
+
+interface Props {
+  project: Project;
+  index: number;
+}
+
+const { project, index } = Astro.props;
+const upstream = project.links[0];
+---
+<article class="group flex flex-col bg-ink p-6 md:p-8 transition-colors hover:bg-ink-soft/60">
+  <div class="flex items-center justify-between gap-3">
+    <span class="font-matrix text-[11px] tracking-[0.3em] text-bone-faint">C{String(index + 1).padStart(2, '0')}</span>
+    <span class="font-matrix text-[10px] tracking-[0.16em] text-bone-faint">{project.owner}</span>
+  </div>
+
+  <h3 class="mt-6 text-3xl font-extralight tracking-tight">
+    <a href={projectPath(project.slug)} class="transition-colors group-hover:text-accent">{project.name}</a>
+  </h3>
+  <p class="mt-2 font-matrix text-[11px] leading-relaxed text-accent">{project.role}</p>
+  <p class="mt-4 text-[15px] text-bone/85 font-light leading-relaxed">{project.summary}</p>
+
+  <div class="mt-5 flex flex-wrap gap-2">
+    {project.stack.slice(0, 3).map((tag) => (
+      <span class="font-matrix text-[10px] border hairline px-2 py-1 text-bone-dim">{tag}</span>
+    ))}
+    <span class="font-matrix text-[10px] border border-accent/25 px-2 py-1 text-accent/90">{project.status}</span>
+  </div>
+
+  <div class="mt-auto flex flex-wrap items-center justify-between gap-4 pt-7">
+    <BracketLink href={projectPath(project.slug)} label="case study" size="text-lg" />
+    {upstream && (
+      <a
+        href={upstream.href}
+        target={upstream.external ? '_blank' : undefined}
+        rel={upstream.external ? 'noreferrer' : undefined}
+        class="font-matrix text-[10px] tracking-widest text-bone-faint hover:text-accent transition-colors"
+      >
+        upstream ↗
+      </a>
+    )}
+  </div>
+</article>

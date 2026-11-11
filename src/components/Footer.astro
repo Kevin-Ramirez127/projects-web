@@ -1,0 +1,27 @@
+---
+import BracketLink from './BracketLink.astro';
+import { site } from '../lib/site';
+---
+<section id="contact" class="relative overflow-hidden">
+  <div class="relative mx-auto max-w-6xl px-6 md:px-10 py-20 md:py-28">
+    <p class="reveal font-matrix text-xs tracking-[0.25em] text-bone-faint">...ELSEWHERE...</p>
+    <h2 class="reveal mt-3 text-5xl md:text-6xl font-extralight tracking-tight">Let's build something.</h2>
+    <p class="reveal mt-5 max-w-xl text-bone/85 font-light leading-relaxed">
+      I'm always interested in developer tooling, native desktop apps, and projects that remove a little friction from someone's day. The source for everything above is on GitHub.
+    </p>
+
+    <div class="reveal mt-10 flex flex-col gap-4 text-[22px] md:text-[26px] font-light">
+      <BracketLink href={site.social.github} label="GitHub" external />
+      <BracketLink href={site.social.linkedin} label="LinkedIn" external />
+      <BracketLink href={site.social.portfolio} label="ramirezkevin.dev" external />
+    </div>
+  </div>
+
+  <div class="border-t hairline bg-ink">
+    <div class="mx-auto max-w-6xl px-6 md:px-10 py-8 flex flex-wrap items-center justify-between gap-4 font-matrix text-[11px] tracking-widest text-bone-faint">
+      <span>© 2026 Kevin Ramirez</span>
+      <span>Montevideo, Uruguay</span>
+      <span>Built with Astro &amp; Motion</span>
+    </div>
+  </div>
+</section>

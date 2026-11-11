@@ -1,0 +1,227 @@
+---
+import SEO from '../components/SEO.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  path?: string;
+  image?: string;
+  noindex?: boolean;
+  type?: 'website' | 'article';
+  jsonLd?: Record<string, unknown>[];
+}
+
+const {
+  title,
+  description,
+  path = '/',
+  image,
+  noindex = false,
+  type = 'website',
+  jsonLd,
+} = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <SEO title={title} description={description} path={path} image={image} noindex={noindex} type={type} jsonLd={jsonLd} />
+    <script is:inline>
+      // Theme before first paint (dark default, stored override wins) so
+      // there's no flash. js-motion flag keeps no-JS content visible.
+      try {
+        var t = localStorage.getItem('theme');
+        document.documentElement.dataset.theme = t === 'light' || t === 'dark' ? t : 'dark';
+      } catch (e) {
+        document.documentElement.dataset.theme = 'dark';
+      }
+      document.documentElement.classList.add('js-motion');
+    </script>
+  </head>
+  <body class="min-h-screen bg-ink text-bone antialiased">
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[60] focus:bg-accent focus:text-ink focus:px-3 focus:py-2 focus:font-matrix focus:text-sm">Skip to content</a>
+    <slot />
+    <script>
+      import { animate, inView, stagger } from 'motion';
+      import { MOTION } from '../lib/motion-config.ts';
+      import { animateThemeSquares, SQUARE_FILL, THEME_INK } from '../lib/theme-transition.ts';
+
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Theme toggle (dark default, persisted). Labels name the ACTION.
+      const themeToggles = () => Array.from(document.querySelectorAll('[data-theme-toggle]')) as HTMLElement[];
+      const themeLabels = () => Array.from(document.querySelectorAll('[data-theme-label]')) as HTMLElement[];
+      const currentTheme = () => (document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
+      function applyTheme(theme: 'light' | 'dark') {
+        document.documentElement.dataset.theme = theme;
+        try {
+          localStorage.setItem('theme', theme);
+        } catch {}
+        const next = theme === 'light' ? 'dark' : 'light';
+        themeLabels().forEach((el) => { el.textContent = next; });
+        themeToggles().forEach((b) => b.setAttribute('aria-label', `Switch to ${next} theme`));
+        document.querySelector('meta[name="theme-color"]')?.setAttribute('content', THEME_INK[theme]);
+      }
+      applyTheme(currentTheme());
+
+      // Theme switch: squares normally, a short cross-fade under reduced
+      // motion, and an instant switch when View Transitions are unsupported.
+      const THEME_TRANSITION_MS = 800;
+      let themeTransitioning = false;
+      themeToggles().forEach((button) => button.addEventListener('click', () => {
+        if (themeTransitioning) return;
+        const next = currentTheme() === 'light' ? 'dark' : 'light';
+
+        themeTransitioning = true;
+        animateThemeSquares({
+          origin: { x: window.innerWidth / 2, y: window.innerHeight / 2 },
+          duration: THEME_TRANSITION_MS,
+          fill: SQUARE_FILL[next === 'dark' ? 'lightToDark' : 'darkToLight'],
+          apply: () => applyTheme(next),
+        }).finally(() => { themeTransitioning = false; });
+      }));
+
+      const showAll = () => {
+        document.querySelectorAll('.reveal, [data-hero]').forEach((el) => {
+          el.classList.add('is-visible');
+        });
+      };
+
+      // Layers are only needed while animating — release them after so
+      // static content doesn't hold compositor memory.
+      const releaseLayers = (els: Element | Element[]) => {
+        (Array.isArray(els) ? els : [els]).forEach((el) => {
+          (el as HTMLElement).style.willChange = 'auto';
+        });
+      };
+
+      if (reduceMotion) {
+        showAll();
+      } else {
+        // Hero entrance timeline (staggered rise + fade). Skip elements hidden
+        // at this breakpoint so they don't consume a stagger slot.
+        const heroEls = Array.from(document.querySelectorAll('#top [data-hero]')).filter(
+          (el) => (el as HTMLElement).offsetParent !== null,
+        );
+        if (heroEls.length > 0) {
+          try {
+            animate(
+              heroEls,
+              { opacity: [0, 1], y: [MOTION.distance.heroRise, 0] },
+              { duration: MOTION.duration.base, ease: MOTION.ease.out, delay: stagger(MOTION.stagger.hero, { startDelay: 0.1 }) },
+            ).finished.then(() => releaseLayers(heroEls), () => {});
+          } catch {
+            heroEls.forEach((el) => el.classList.add('is-visible'));
+          }
+        }
+
+        // Scroll reveals (skip hero - already handled by the timeline).
+        const revealEls = Array.from(document.querySelectorAll('.reveal')).filter(
+          (el) => !el.closest('#top') || !el.hasAttribute('data-hero'),
+        );
+        revealEls.forEach((el) => {
+          const delay = Number(el.getAttribute('data-reveal-delay') ?? 0);
+          inView(
+            el,
+            // Motion v14 calls onStart(element, entry) - first arg IS the element.
+            (element) => {
+              try {
+                animate(
+                  element,
+                  { opacity: [0, 1], y: [MOTION.distance.rise, 0] },
+                  { duration: MOTION.duration.base, ease: MOTION.ease.out, delay },
+                ).finished.then(() => releaseLayers(element), () => {});
+              } catch {
+                element.classList.add('is-visible');
+              }
+            },
+            { margin: MOTION.viewport.margin },
+          );
+        });
+      }
+
+      // Menu overlay (Motion-driven fade + link stagger).
+      const btn = document.getElementById('menu-btn');
+      const overlay = document.getElementById('menu-overlay');
+      const closeBtn = document.getElementById('menu-close');
+      const menuLinks = () => Array.from(overlay?.querySelectorAll('[data-menu-link]') ?? []) as HTMLElement[];
+      let menuOpen = false;
+
+      async function setMenu(open: boolean) {
+        if (!overlay || !btn) return;
+        menuOpen = open;
+        btn.setAttribute('aria-expanded', String(open));
+        // Inert when closed: invisible overlay must not be keyboard-focusable.
+        overlay.inert = !open;
+        if (open) {
+          const links = menuLinks();
+          overlay.classList.remove('pointer-events-none');
+          document.body.style.overflow = 'hidden';
+          closeBtn?.focus();
+          if (reduceMotion) {
+            links.forEach((l) => { l.style.opacity = ''; l.style.transform = ''; });
+            overlay.classList.remove('opacity-0');
+          } else {
+            // Park links hidden BEFORE the overlay fades in, or they flash
+            // at full opacity and restart (blink). Anchors use
+            // transition-colors so this applies instantly.
+            links.forEach((l) => { l.style.opacity = '0'; l.style.transform = 'translateY(18px)'; });
+            try {
+              await animate(overlay, { opacity: [0, 1] }, { duration: MOTION.duration.fast, ease: MOTION.ease.out }).finished.catch(() => {});
+              overlay.classList.remove('opacity-0');
+              animate(
+                links,
+                { opacity: [0, 1], y: [18, 0] },
+                { duration: MOTION.duration.fast, ease: MOTION.ease.out, delay: stagger(MOTION.stagger.menu) },
+              );
+            } catch {
+              overlay.classList.remove('opacity-0');
+            }
+          }
+        } else {
+          document.body.style.overflow = '';
+          if (reduceMotion) {
+            overlay.classList.add('opacity-0');
+            overlay.classList.add('pointer-events-none');
+          } else {
+            try {
+              await animate(overlay, { opacity: [1, 0] }, { duration: MOTION.duration.instant, ease: MOTION.ease.out }).finished.catch(() => {});
+            } catch {
+              overlay.classList.add('opacity-0');
+            }
+            overlay.classList.add('pointer-events-none');
+          }
+          btn?.focus();
+        }
+      }
+
+      btn?.addEventListener('click', () => setMenu(true));
+      closeBtn?.addEventListener('click', () => setMenu(false));
+      overlay?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && menuOpen) setMenu(false);
+      });
+      // Focus trap: Tab cycles inside the open overlay instead of leaking
+      // to the page behind it.
+      overlay?.addEventListener('keydown', (e) => {
+        if (e.key !== 'Tab' || !menuOpen || !overlay) return;
+        const items = Array.from(overlay.querySelectorAll('a[href], button:not([disabled])')).filter(
+          (el) => (el as HTMLElement).offsetParent !== null,
+        ) as HTMLElement[];
+        if (items.length === 0) return;
+        const first = items[0];
+        const last = items[items.length - 1];
+        const active = document.activeElement as HTMLElement | null;
+        if (e.shiftKey && (active === first || !overlay.contains(active))) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      });
+    </script>
+  </body>
+</html>
