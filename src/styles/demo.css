@@ -631,7 +631,7 @@ html[data-theme="light"] .tg-phone {
 /* Xiaomi-style punch-hole camera instead of a Dynamic Island. */
 .tg-camera {
   position: absolute;
-  z-index: 20;
+  z-index: 40;
   top: 0.58rem;
   left: 50%;
   width: 0.68rem;
