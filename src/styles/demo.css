@@ -21,6 +21,29 @@
 .demo-shell {
   position: relative;
   overflow: hidden;
+  container-type: inline-size;
+}
+
+/* The demo is embedded in the case-study article, whose width shrinks when the
+   sidebar is visible. Side by side only once the shell itself is wide enough. */
+.demo-devices {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@container (min-width: 640px) {
+  .demo-devices {
+    grid-template-columns: minmax(0, 1fr) 280px;
+    align-items: start;
+  }
+
+  .demo-devices .oc-console {
+    order: 1;
+  }
+
+  .demo-devices .tg-phone {
+    order: 2;
+  }
 }
 
 .demo-toolbar {

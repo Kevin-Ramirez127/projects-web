@@ -56,10 +56,6 @@ export const projects: Project[] = [
     stack: ['Go', 'Telegram Bot API', 'SSE', 'REST', 'Bash'],
     links: [
       {
-        label: 'Interactive demo',
-        href: '/projects/opencode-telegram/demo/',
-      },
-      {
         label: 'Source',
         href: 'https://github.com/Kevin-Ramirez127/opencode-telegram',
         external: true,

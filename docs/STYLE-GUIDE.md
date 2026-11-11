@@ -61,8 +61,8 @@ Rules:
 - Main projects are an editorial list: index, name, summary, tags, actions.
 - Contributions are a 1px hairline grid: `gap-px bg-line border hairline` with
   `bg-ink` cells.
-- Detail pages: `max-w-6xl`, main column + `17rem` sticky sidebar; the sidebar
-  is hidden below `lg` because the hero already carries links and facts.
+- Detail pages: `max-w-6xl`, one reading column. Prose sections cap at
+  `max-w-3xl`; wide content such as the interactive demo uses the full width.
 
 ## 5. Components
 
@@ -119,9 +119,9 @@ and mask the rails with an opaque `bg-ink`.
 
 ### Interactive demo exception
 
-`/projects/opencode-telegram/demo/` contains two product mockups that use their
-own design systems instead of this guide's tokens, but still follow the site
-light/dark mode:
+The live demo embedded in the opencode-telegram case study contains two product
+mockups that use their own design systems instead of this guide's tokens, but
+still follow the site light/dark mode:
 
 - The OpenCode console follows OpenCode's TUI. Dark: `#0a0a0a` / `#141414` /
   `#1e1e1e` surfaces, light wordmark, blue composer rule. Light: `#ffffff` /
