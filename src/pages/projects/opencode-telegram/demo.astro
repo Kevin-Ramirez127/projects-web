@@ -491,6 +491,7 @@ const description =
         commandMenuBtn.classList.remove('is-attention');
         phoneSend.classList.remove('is-attention');
         commandMenuBtn.disabled = currentScenario !== 'commands' || daemonStopped;
+        commandMenuBtn.classList.toggle('is-command-scenario', currentScenario === 'commands');
         setCommandMenu(false, false);
         setResetTooltip(false);
         if (notificationTimer) window.clearTimeout(notificationTimer);
