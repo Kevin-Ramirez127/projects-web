@@ -861,6 +861,30 @@ html[data-theme="light"] .tg-phone {
   opacity: 0.75;
 }
 
+.tg-menu-btn:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.tg-menu-btn.is-attention {
+  border-radius: 999px;
+  outline: 1px solid var(--tg-accent);
+  outline-offset: 2px;
+  animation: tg-menu-pulse 1.8s ease-out infinite;
+}
+
+@keyframes tg-menu-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--tg-accent) 45%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
 .tg-menu-icon {
   width: 1.05rem;
   height: 1.05rem;
@@ -978,7 +1002,69 @@ html[data-theme="light"] .tg-phone {
   color: var(--tg-sheet-muted);
 }
 
+
+/* Reset prompt after /exit */
+
+.tg-reset-tooltip {
+  position: absolute;
+  z-index: 27;
+  left: 0.5rem;
+  bottom: 3.55rem;
+  width: 11.5rem;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--tg-sheet-border);
+  border-radius: 0.8rem;
+  background: var(--tg-sheet-bg);
+  box-shadow: var(--tg-sheet-shadow);
+  color: var(--tg-sheet-text);
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+  pointer-events: none;
+  transition:
+    opacity 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tg-reset-tooltip.is-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.tg-reset-tooltip::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 1.1rem;
+  width: 8px;
+  height: 8px;
+  transform: rotate(45deg);
+  border-right: 1px solid var(--tg-sheet-border);
+  border-bottom: 1px solid var(--tg-sheet-border);
+  background: var(--tg-sheet-bg);
+}
+
+.tg-reset-text {
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--tg-sheet-text);
+}
+
+.tg-reset-btn {
+  margin-top: 0.4rem;
+  padding: 0.25rem 0.5rem;
+  border: 0;
+  border-radius: 0.4rem;
+  background: var(--tg-accent);
+  color: var(--tg-accent-text);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 /* Telegram messages */
+
 
 
 .demo-msg {
@@ -1331,8 +1417,23 @@ html[data-theme="light"] .tg-phone {
 
   .demo-notification,
   .tg-command-menu,
-  .tg-command-backdrop {
+  .tg-command-backdrop,
+  .tg-reset-tooltip {
     transition: none;
+  }
+
+  .tg-menu-btn.is-attention,
+  .tg-composer #phone-send.is-attention {
+    animation: none;
+  }
+
+  .tg-menu-btn.is-attention {
+    outline: 1px solid var(--tg-accent);
+    outline-offset: 2px;
+  }
+
+  .tg-composer #phone-send.is-attention {
+    box-shadow: 0 0 0 2px var(--tg-accent);
   }
 
   .demo-scenario,

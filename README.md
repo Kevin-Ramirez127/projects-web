@@ -91,10 +91,15 @@ from Telegram, and bot commands.
   and the computer session continues or stops.
 - The prompt scenario enables the phone composer, so you can type your own
   instruction and send it to the simulated session.
-- The Telegram `Menu` button opens the bot command list: `/bind`, `/settings`,
+- The Telegram `Menu` button is available only in the Bot commands scenario.
+  It pulses the first time that scenario opens, then lists `/bind`, `/settings`,
   `/exit`, `/agents`, `/models` (three models) and `/usage`. Selecting one sends
   the command and returns a bot response; `/models`, `/agents` and `/exit` also
   expose inline actions.
+- The Prompt from Telegram scenario pulses the send button until the prompt is
+  sent.
+- `/exit` → Stop daemon disables the Menu button and shows a reset tooltip so
+  the simulation can start again.
 - No raster images are used. The phone, terminal, icons and logos are CSS and
   inline SVG.
 - Reduced motion skips the animations but keeps every scenario playable, and
