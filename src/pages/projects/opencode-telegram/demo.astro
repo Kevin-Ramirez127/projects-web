@@ -41,6 +41,7 @@ const scenarios = [
 
 const phoneCommands = [
   { id: 'bind', command: '/bind', description: 'Bind this chat to a session.' },
+  { id: 'session', command: '/session', description: 'Pick one of the recent sessions.' },
   { id: 'settings', command: '/settings', description: 'Show notification settings.' },
   { id: 'exit', command: '/exit', description: 'Stop the Telegram daemon.' },
   { id: 'agents', command: '/agents', description: 'Switch the bound session agent.' },
@@ -363,6 +364,7 @@ const description =
       let commandMenuOpen = false;
       let daemonStopped = false;
       let commandsHintShown = false;
+      let boundSession = '';
       let notificationTimer: number | undefined;
 
       const isActive = (id: number) => id === runId;
@@ -378,6 +380,12 @@ const description =
           return map[character] ?? character;
         });
 
+      const SESSIONS = [
+        { title: 'postal-ui', directory: '~/projects/postal' },
+        { title: 'gitsion', directory: '~/projects/gitsion' },
+        { title: 'quick-bitwarden', directory: '~/projects/quick-bitwarden' },
+      ];
+
       const COMMANDS: Record<
         string,
         {
@@ -389,7 +397,16 @@ const description =
       > = {
         bind: {
           command: '/bind',
-          html: '<p class="demo-msg-title">Bind a session</p><p class="demo-msg-body">Usage: /bind &lt;session-id&gt;. Send /sessions to pick one.</p>',
+          html: '<p class="demo-msg-title">Pick a session first</p><p class="demo-msg-body">Run /session to choose a session, then bind it.</p>',
+        },
+        session: {
+          command: '/session',
+          html: '<p class="demo-msg-title">Recent sessions</p><p class="demo-msg-body">Tap a session to bind it.</p>',
+          actions: SESSIONS.map((session) => ({ label: session.title, value: session.title })),
+          followUp: (label) => {
+            const session = SESSIONS.find((entry) => entry.title === label);
+            return `🔗 Bound to: ${label}${session ? ` · ${session.directory}` : ''}.`;
+          },
         },
         settings: {
           command: '/settings',
@@ -488,6 +505,7 @@ const description =
       function resetStage() {
         pendingPrompt = null;
         pendingCommandSelection = null;
+        boundSession = '';
         commandMenuBtn.classList.remove('is-attention');
         phoneSend.classList.remove('is-attention');
         commandMenuBtn.disabled = currentScenario !== 'commands' || daemonStopped;
@@ -776,8 +794,25 @@ const description =
         await showTyping(myRun, 550);
         if (!isActive(myRun)) return;
 
-        const { buttons } = addPhoneBot(command.html, { actions: command.actions }, myRun);
-        if (!command.actions || command.actions.length === 0) return;
+        let html = command.html;
+        let actions = command.actions;
+        if (id === 'bind') {
+          if (boundSession) {
+            html = `<p class="demo-msg-title">Already bound</p><p class="demo-msg-body">This chat is bound to <code>${esc(boundSession)}</code>. Use /session to switch.</p>`;
+          } else {
+            html = '<p class="demo-msg-title">Pick a session first</p><p class="demo-msg-body">Run /session to choose a session, then bind it.</p>';
+          }
+        }
+        if (id === 'session') {
+          html = '<p class="demo-msg-title">Recent sessions</p><p class="demo-msg-body">Tap a session to bind it.</p>';
+          actions = SESSIONS.map((session) => ({
+            label: `${boundSession === session.title ? '✓ ' : ''}${session.title}`,
+            value: session.title,
+          }));
+        }
+
+        const { buttons } = addPhoneBot(html, { actions }, myRun);
+        if (!actions || actions.length === 0) return;
 
         buttons.forEach((button) => {
           button.addEventListener(
@@ -790,6 +825,7 @@ const description =
               button.classList.add('is-picked');
               const label = (button.textContent ?? '').replace('✓ ', '').trim();
               const value = button.dataset.value ?? '';
+              if (id === 'session') boundSession = label;
               if (id === 'exit' && value === 'stop daemon') stopDaemon();
               const followUp = command.followUp?.(label, value) ?? '';
               if (!followUp) return;

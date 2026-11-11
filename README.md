@@ -93,9 +93,11 @@ from Telegram, and bot commands.
   instruction and send it to the simulated session.
 - The Telegram `Menu` button is available only in the Bot commands scenario,
   where it becomes a rounded `#64B5EF` pill. It pulses the first time that
-  scenario opens, then lists `/bind`, `/settings`, `/exit`, `/agents`, `/models`
-  (three models) and `/usage`. Selecting one sends the command and returns a bot
-  response; `/models`, `/agents` and `/exit` also expose inline actions.
+  scenario opens, then lists `/bind`, `/session`, `/settings`, `/exit`,
+  `/agents`, `/models` (three models) and `/usage`. Selecting one sends the
+  command and returns a bot response; `/models`, `/agents` and `/exit` also
+  expose inline actions. `/session` shows three recent sessions to bind, and
+  selecting `/bind` before `/session` returns a hint to pick a session first.
 - The Prompt from Telegram scenario pulses the send button until the prompt is
   sent.
 - `/exit` → Stop daemon disables the Menu button and shows a reset tooltip so
