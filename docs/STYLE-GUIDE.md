@@ -117,6 +117,22 @@ and mask the rails with an opaque `bg-ink`.
   maintainership.
 - Closing `...NEXT...` link plus `[ All projects ]`.
 
+### Interactive demo exception
+
+`/projects/opencode-telegram/demo/` contains two product mockups that
+intentionally do **not** use this guide's tokens:
+
+- The OpenCode console follows OpenCode's TUI: `#0a0a0a` / `#141414` / `#1e1e1e`
+  surfaces, the official wordmark, OpenTUI Mono, syntax colors and a blue
+  composer rule.
+- The Telegram phone follows Telegram's light theme: a `#1a73c8` header, white
+  incoming bubbles, `#e1ffc7` outgoing bubbles, inline keyboards, the system UI
+  font and an iOS-style notification.
+
+The surrounding demo chrome (toolbar, scenario menu, captions) still uses the
+site tokens. Do not refactor the mockups back to `--color-*` variables — they
+are supposed to look like the real products.
+
 ### Section header
 
 ```html

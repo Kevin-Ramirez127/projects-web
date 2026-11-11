@@ -2,6 +2,8 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import Nav from '../../../components/Nav.astro';
 import TelegramPlane from '../../../components/TelegramPlane.astro';
+import OpenCodeWordmark from '../../../components/OpenCodeWordmark.astro';
+import OpenCodeLogo from '../../../components/OpenCodeLogo.astro';
 import '../../../styles/demo.css';
 
 const scenarios = [
@@ -86,77 +88,85 @@ const description =
           </div>
 
           <div class="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
-            {/* Computer */}
-            <div id="demo-computer" class="demo-terminal order-2 lg:order-1">
-              <div class="demo-window-bar">
-                <div class="demo-window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
-                <p class="demo-window-title">opencode — ~/projects/postal</p>
-                <p id="computer-status" class="demo-window-status" data-tone="idle"><span class="demo-status-dot"></span> idle</p>
+            {/* Computer — OpenCode TUI */}
+            <div id="demo-computer" class="oc-window order-2 lg:order-1">
+              <div class="oc-titlebar">
+                <div class="oc-titlebar-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+                <span class="oc-titlebar-path">opencode — ~/projects/postal</span>
+                <span id="computer-status" class="oc-titlebar-status" data-tone="idle"><span class="oc-status-dot"></span> idle</span>
               </div>
-              <div class="demo-terminal-body">
-                <div class="demo-tui-head">
-                  <div class="flex items-center gap-3">
-                    <div class="demo-mark">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <rect x="3" y="4" width="18" height="16" rx="3" />
-                        <path d="m8 9 3 3-3 3" />
-                        <path d="M13 15h3" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p class="demo-tui-name">OpenCode</p>
-                      <p class="demo-tui-meta">session · postal-ui</p>
-                    </div>
+
+              <div class="oc-screen">
+                <div class="oc-header">
+                  <OpenCodeWordmark class="oc-wordmark" />
+                  <div class="oc-header-meta">
+                    <span class="oc-session">postal-ui</span>
+                    <span class="oc-model">gpt-5.1-codex</span>
                   </div>
-                  <span class="demo-tui-model">gpt-5.1-codex</span>
                 </div>
 
-                <div id="computer-feed" class="demo-feed">
-                  <p class="demo-line demo-line--status"><span class="demo-glyph">·</span><span>enable JavaScript to run the simulation</span></p>
+                <div id="computer-feed" class="oc-feed">
+                  <p class="oc-line oc-line--status"><span class="oc-glyph">·</span><span>enable JavaScript to run the simulation</span></p>
                 </div>
 
-                <div class="mt-3 flex items-center gap-2 border-t hairline pt-3 font-matrix text-[10px] text-bone-faint">
-                  <span class="text-accent">&gt;</span>
-                  <span id="computer-prompt" class="demo-caret">waiting for events</span>
+                <div class="oc-composer">
+                  <div class="oc-composer-input">
+                    <span class="oc-chevron">❯</span>
+                    <span id="computer-prompt" class="oc-caret">waiting for events</span>
+                  </div>
+                  <div class="oc-composer-footer">
+                    <span class="oc-agent">Build</span>
+                    <span class="oc-sep">·</span>
+                    <span class="oc-model-name">Big Pickle</span>
+                    <span class="oc-brand">OpenCode</span>
+                  </div>
+                </div>
+
+                <div class="oc-statusbar">
+                  <span>~/projects/postal</span>
+                  <span class="oc-shortcuts"><span>shift+tab agents</span><span>ctrl+p commands</span></span>
                 </div>
               </div>
             </div>
 
-            {/* Phone */}
-            <div id="demo-phone" class="demo-phone order-1 lg:order-2">
-              <div class="demo-phone-screen">
-                <div class="demo-notch" aria-hidden="true"></div>
-                <div class="demo-phone-status">
-                  <span>09:41</span>
-                  <div class="flex items-center gap-1.5" aria-hidden="true">
+            {/* Phone — Telegram */}
+            <div id="demo-phone" class="tg-phone order-1 lg:order-2">
+              <div class="tg-screen">
+                <div class="tg-island" aria-hidden="true"></div>
+                <div class="tg-statusbar">
+                  <span class="tg-time">09:41</span>
+                  <div class="tg-status-icons" aria-hidden="true">
                     <svg width="13" height="10" viewBox="0 0 13 10" fill="currentColor"><rect x="0" y="7" width="2" height="3" rx=".5" /><rect x="3.5" y="5" width="2" height="5" rx=".5" /><rect x="7" y="3" width="2" height="7" rx=".5" /><rect x="10.5" y="0" width="2" height="10" rx=".5" /></svg>
                     <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><path d="M1 3.5a9 9 0 0 1 12 0" /><path d="M3.5 6a5.5 5.5 0 0 1 7 0" /><circle cx="7" cy="8.5" r=".8" fill="currentColor" stroke="none" /></svg>
                     <svg width="18" height="9" viewBox="0 0 18 9" fill="none" stroke="currentColor"><rect x=".5" y=".5" width="15" height="8" rx="2" /><rect x="2" y="2" width="10" height="5" rx="1" fill="currentColor" stroke="none" /><path d="M17 3v3" stroke-width="2" stroke-linecap="round" /></svg>
                   </div>
                 </div>
 
-                <div class="demo-phone-header">
-                  <div class="demo-bot-avatar"><TelegramPlane /></div>
-                  <div class="min-w-0">
-                    <p class="demo-phone-name">opencode-telegram</p>
-                    <p class="demo-phone-sub"><span class="demo-online-dot"></span> bot</p>
+                <div class="tg-header">
+                  <svg class="tg-back" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+                  <div class="tg-avatar"><OpenCodeLogo idPrefix="tg-avatar-logo" /></div>
+                  <div class="tg-header-info">
+                    <p class="tg-chat-name">opencode-telegram</p>
+                    <p class="tg-chat-status">bot</p>
                   </div>
-                  <span class="ml-auto font-matrix text-[14px] text-bone-faint" aria-hidden="true">···</span>
+                  <span class="tg-more" aria-hidden="true">⋯</span>
                 </div>
 
-                <div id="phone-feed" class="demo-phone-feed">
+                <div id="phone-feed" class="tg-feed">
                   <div class="demo-msg demo-msg--system">enable JavaScript to run the simulation</div>
                 </div>
 
-                <div id="phone-composer" class="demo-phone-composer">
-                  <input id="phone-input" type="text" disabled placeholder="Notifications only" aria-label="Message the agent" autocomplete="off" />
+                <div id="phone-composer" class="tg-composer">
+                  <svg class="tg-composer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M8.5 14.5s1.2 1.8 3.5 1.8 3.5-1.8 3.5-1.8" /><path d="M9 9.5h.01M15 9.5h.01" stroke-width="2.2" /></svg>
+                  <input id="phone-input" type="text" disabled placeholder="Message" aria-label="Message the agent" autocomplete="off" />
+                  <svg class="tg-composer-attach" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 11.5-8.5 8.5a5 5 0 0 1-7-7L14 4.5a3.5 3.5 0 0 1 5 5L10 18.5a2 2 0 0 1-3-3l8-8" /></svg>
                   <button id="phone-send" type="button" disabled aria-label="Send message">
                     <TelegramPlane />
                   </button>
                 </div>
 
                 <div id="phone-notification" class="demo-notification" role="status" aria-live="polite">
-                  <div class="demo-bot-avatar demo-bot-avatar--sm"><TelegramPlane /></div>
+                  <div class="tg-notification-icon"><OpenCodeLogo idPrefix="tg-notification-logo" /></div>
                   <div class="min-w-0">
                     <p class="demo-notification-meta">opencode-telegram · now</p>
                     <p id="notif-title" class="demo-notification-title">Session finished</p>
@@ -321,7 +331,7 @@ const description =
 
       const setComputerStatus = (tone: string, text: string) => {
         computerStatus.dataset.tone = tone;
-        computerStatus.innerHTML = `<span class="demo-status-dot"></span> ${esc(text)}`;
+        computerStatus.innerHTML = `<span class="oc-status-dot"></span> ${esc(text)}`;
       };
 
       const setStageStatus = (tone: string, text: string) => {
@@ -331,13 +341,13 @@ const description =
 
       const setPromptLine = (text: string, caret = true) => {
         computerPrompt.textContent = text;
-        computerPrompt.classList.toggle('demo-caret', caret);
+        computerPrompt.classList.toggle('oc-caret', caret);
       };
 
       const setComposer = (enabled: boolean, value = '') => {
         phoneInput.disabled = !enabled;
         phoneSend.disabled = !enabled;
-        phoneInput.placeholder = enabled ? 'Message the agent…' : 'Notifications only';
+        phoneInput.placeholder = 'Message';
         phoneInput.value = value;
         phoneComposer.classList.toggle('is-live', enabled);
       };
@@ -373,9 +383,9 @@ const description =
       ) {
         if (!isActive(myRun)) return;
         const line = document.createElement('div');
-        line.className = `demo-line demo-line--${kind}`;
+        line.className = `oc-line oc-line--${kind}`;
         const glyph = document.createElement('span');
-        glyph.className = 'demo-glyph';
+        glyph.className = 'oc-glyph';
         glyph.textContent = kind === 'user' ? '›' : kind === 'assistant' ? '●' : kind === 'tool' ? '▸' : kind === 'error' ? '!' : '·';
         const body = document.createElement('div');
         body.className = 'min-w-0';
@@ -392,27 +402,27 @@ const description =
           element.textContent = text;
           return;
         }
-        element.classList.add('demo-caret');
+        element.classList.add('oc-caret');
         const words = text.split(' ');
         element.textContent = '';
         for (let index = 0; index < words.length; index += 1) {
           if (!isActive(myRun)) {
-            element.classList.remove('demo-caret');
+            element.classList.remove('oc-caret');
             return;
           }
           element.textContent += `${index === 0 ? '' : ' '}${words[index]}`;
           scrollFeed(computerFeed);
           await sleep(words[index].length > 6 ? 44 : 28);
         }
-        element.classList.remove('demo-caret');
+        element.classList.remove('oc-caret');
       }
 
       function addComputerTool(command: string, result: string, myRun: number, failed = false) {
         if (!isActive(myRun)) return;
         const line = document.createElement('div');
-        line.className = 'demo-line demo-line--tool';
+        line.className = 'oc-line oc-line--tool';
         const glyph = document.createElement('span');
-        glyph.className = 'demo-glyph';
+        glyph.className = 'oc-glyph';
         glyph.textContent = '▸';
         const body = document.createElement('div');
         body.className = 'min-w-0';
@@ -423,7 +433,7 @@ const description =
         code.textContent = command;
         commandLine.append(label, document.createTextNode(' '), code);
         const resultLine = document.createElement('div');
-        resultLine.className = 'demo-tool-result';
+        resultLine.className = 'oc-tool-result';
         resultLine.textContent = result;
         if (failed) resultLine.style.color = 'var(--color-bone)';
         body.append(commandLine, resultLine);
@@ -436,9 +446,9 @@ const description =
       function addComputerError(title: string, detail: string, myRun: number) {
         if (!isActive(myRun)) return;
         const line = document.createElement('div');
-        line.className = 'demo-line demo-line--error';
+        line.className = 'oc-line oc-line--error';
         const glyph = document.createElement('span');
-        glyph.className = 'demo-glyph';
+        glyph.className = 'oc-glyph';
         glyph.textContent = '!';
         const body = document.createElement('div');
         body.className = 'min-w-0';
@@ -459,28 +469,28 @@ const description =
       ) {
         if (!isActive(myRun)) return null;
         const panel = document.createElement('div');
-        panel.className = 'demo-panel';
+        panel.className = 'oc-panel';
         const label = document.createElement('p');
-        label.className = 'demo-panel-label';
+        label.className = 'oc-panel-label';
         label.textContent = panelData.label;
         const title = document.createElement('p');
-        title.className = 'demo-panel-title';
+        title.className = 'oc-panel-title';
         title.textContent = panelData.title;
         panel.append(label, title);
 
         if (panelData.code) {
           const code = document.createElement('code');
-          code.className = 'demo-code mt-2 inline-block';
+          code.className = 'oc-code mt-2 inline-block';
           code.textContent = panelData.code;
           panel.append(code);
         }
 
         if (panelData.options) {
           const options = document.createElement('div');
-          options.className = 'demo-panel-options';
+          options.className = 'oc-panel-options';
           panelData.options.forEach((option) => {
             const item = document.createElement('span');
-            item.className = 'demo-panel-option';
+            item.className = 'oc-panel-option';
             item.textContent = option;
             options.append(item);
           });
@@ -494,16 +504,16 @@ const description =
       }
 
       function markPanelChoice(value: string) {
-        const panels = computerFeed.querySelectorAll<HTMLElement>('.demo-panel');
+        const panels = computerFeed.querySelectorAll<HTMLElement>('.oc-panel');
         const panel = panels[panels.length - 1];
         if (!panel) return;
-        let options = panel.querySelector<HTMLElement>('.demo-panel-options');
+        let options = panel.querySelector<HTMLElement>('.oc-panel-options');
         if (!options) {
           options = document.createElement('div');
-          options.className = 'demo-panel-options';
+          options.className = 'oc-panel-options';
           panel.append(options);
         }
-        const match = Array.from(options.querySelectorAll<HTMLElement>('.demo-panel-option')).find(
+        const match = Array.from(options.querySelectorAll<HTMLElement>('.oc-panel-option')).find(
           (option) => option.textContent?.trim() === value,
         );
         if (match) {
@@ -511,7 +521,7 @@ const description =
           return;
         }
         const picked = document.createElement('span');
-        picked.className = 'demo-panel-option is-picked';
+        picked.className = 'oc-panel-option is-picked';
         picked.textContent = value;
         options.append(picked);
       }
@@ -524,11 +534,7 @@ const description =
         if (!isActive(myRun)) return { el: null, buttons: [] as HTMLButtonElement[] };
         const message = document.createElement('div');
         message.className = 'demo-msg';
-        let content = '';
-        if (options.label) {
-          content += `<div class="demo-msg-head"><span class="demo-msg-head-dot"></span>${esc(options.label)}</div>`;
-        }
-        content += html;
+        let content = html;
         if (options.actions && options.actions.length > 0) {
           content += `<div class="demo-msg-actions">${options.actions
             .map(
@@ -537,6 +543,7 @@ const description =
             )
             .join('')}</div>`;
         }
+        content += '<div class="demo-msg-meta"><span>09:41</span></div>';
         message.innerHTML = content;
         const buttons = Array.from(message.querySelectorAll<HTMLButtonElement>('button'));
         phoneFeed.append(message);
@@ -552,7 +559,15 @@ const description =
         const body = document.createElement('p');
         body.className = 'demo-msg-body';
         body.textContent = text;
-        message.append(body);
+        const meta = document.createElement('div');
+        meta.className = 'demo-msg-meta';
+        const time = document.createElement('span');
+        time.textContent = '09:41';
+        const check = document.createElement('span');
+        check.className = 'demo-msg-check';
+        check.textContent = '✓✓';
+        meta.append(time, check);
+        message.append(body, meta);
         phoneFeed.append(message);
         scrollFeed(phoneFeed);
         play(message, { opacity: [0, 1], y: [14, 0], scale: [0.98, 1] }, { duration: MOTION.duration.fast, ease: MOTION.ease.out });

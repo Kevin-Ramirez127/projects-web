@@ -41,6 +41,8 @@ src/
     ProjectRow.astro            one row in the main projects list
     ContributionCard.astro      one cell in the open-source grid
     TelegramPlane.astro         inline SVG mark used by the demo
+    OpenCodeWordmark.astro      official OpenCode wordmark (SVG)
+    OpenCodeLogo.astro          official OpenCode logo (SVG)
     Footer.astro                contact section + bottom bar
     SEO.astro                   canonical, Open Graph, Twitter, JSON-LD
   lib/
@@ -93,6 +95,24 @@ from Telegram, and session failure.
   inline SVG.
 - Reduced motion skips the animations but keeps every scenario playable, and
   no-JS visitors get a readable fallback.
+
+### Design systems
+
+The page chrome follows this site's style guide. The two devices deliberately
+do **not**:
+
+- The OpenCode console uses OpenCode's own TUI language: `#0a0a0a` ground,
+  raised `#141414` / `#1e1e1e` surfaces, the official grayscale wordmark,
+  OpenTUI Mono, a blue composer with a left accent rule, and the muted
+  status bar (`~/projects/postal`, `shift+tab agents`, `ctrl+p commands`).
+- The Telegram phone uses Telegram's light theme: `#1a73c8` header and status
+  bar, white incoming bubbles, `#e1ffc7` outgoing bubbles, inline keyboards,
+  the system UI font, a patterned chat background and an iOS-style
+  notification.
+
+The OpenTUI Mono font is self-hosted at `public/fonts/opentui-mono-*.woff2`
+under the SIL Open Font License (`public/fonts/OpenTUIMono-OFL.txt`). The
+OpenCode wordmark and logo are the official brand SVGs.
 
 The demo is linked from the opencode-telegram case study and from its row on the
 main projects page.
