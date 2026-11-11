@@ -119,19 +119,26 @@ and mask the rails with an opaque `bg-ink`.
 
 ### Interactive demo exception
 
-`/projects/opencode-telegram/demo/` contains two product mockups that
-intentionally do **not** use this guide's tokens:
+`/projects/opencode-telegram/demo/` contains two product mockups that use their
+own design systems instead of this guide's tokens, but still follow the site
+light/dark mode:
 
-- The OpenCode console follows OpenCode's TUI: `#0a0a0a` / `#141414` / `#1e1e1e`
-  surfaces, the official wordmark, OpenTUI Mono, syntax colors and a blue
-  composer rule.
-- The Telegram phone follows Telegram's light theme: a `#1a73c8` header, white
-  incoming bubbles, `#e1ffc7` outgoing bubbles, inline keyboards, the system UI
-  font and an iOS-style notification.
+- The OpenCode console follows OpenCode's TUI. Dark: `#0a0a0a` / `#141414` /
+  `#1e1e1e` surfaces, light wordmark, blue composer rule. Light: `#ffffff` /
+  `#fafafa` surfaces and dark wordmark. It keeps OpenTUI Mono, syntax colors
+  and the status bar. The session state is shown below the window; the composer
+  stays as `Ask anything...`.
+- The Telegram phone follows Telegram's themes. Dark: `#17212b` header,
+  `#0e1621` chat, dark bubbles. Light: `#1a73c8` header, white incoming and
+  `#e1ffc7` outgoing bubbles. Inline keyboards, the system UI font and the
+  iOS-style notification stay in both.
+
+The green `✈ Telegram on` status-bar indicator uses `#3fb950` in dark mode and
+a darker green in light mode for contrast.
 
 The surrounding demo chrome (toolbar, scenario menu, captions) still uses the
-site tokens. Do not refactor the mockups back to `--color-*` variables — they
-are supposed to look like the real products.
+site tokens. Do not refactor the mockups to `--color-*` variables — they are
+supposed to look like the real products, with their own light/dark palettes.
 
 ### Section header
 

@@ -98,17 +98,23 @@ from Telegram, and session failure.
 
 ### Design systems
 
-The page chrome follows this site's style guide. The two devices deliberately
-do **not**:
+The page chrome follows this site's style guide. The two devices use their own
+design systems, with light and dark variants that follow the site theme:
 
-- The OpenCode console uses OpenCode's own TUI language: `#0a0a0a` ground,
-  raised `#141414` / `#1e1e1e` surfaces, the official grayscale wordmark,
-  OpenTUI Mono, a blue composer with a left accent rule, and the muted
-  status bar (`~/projects/postal`, `shift+tab agents`, `ctrl+p commands`).
-- The Telegram phone uses Telegram's light theme: `#1a73c8` header and status
-  bar, white incoming bubbles, `#e1ffc7` outgoing bubbles, inline keyboards,
-  the system UI font, a patterned chat background and an iOS-style
+- The OpenCode console uses OpenCode's TUI language. Dark: `#0a0a0a` ground,
+  raised `#141414` / `#1e1e1e` surfaces, light wordmark, blue composer rule.
+  Light: `#ffffff` / `#fafafa` surfaces, dark wordmark, the same OpenTUI Mono,
+  syntax colors and status bar. The session state sits in a small line below
+  the window, not inside the composer.
+- The Telegram phone uses Telegram's themes. Dark: `#17212b` header, `#0e1621`
+  chat, dark incoming bubbles and `#2b5278` outgoing bubbles. Light: `#1a73c8`
+  header, white incoming bubbles and `#e1ffc7` outgoing bubbles. Both keep the
+  inline keyboards, system UI font, patterned background and iOS-style
   notification.
+
+The OpenCode status bar also carries a green `✈ Telegram on` indicator
+(`#3fb950` in dark mode, a darker green in light mode for contrast) before the
+OpenCode shortcuts.
 
 The OpenTUI Mono font is self-hosted at `public/fonts/opentui-mono-*.woff2`
 under the SIL Open Font License (`public/fonts/OpenTUIMono-OFL.txt`). The

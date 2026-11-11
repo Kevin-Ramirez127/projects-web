@@ -89,43 +89,51 @@ const description =
 
           <div class="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
             {/* Computer — OpenCode TUI */}
-            <div id="demo-computer" class="oc-window order-2 lg:order-1">
-              <div class="oc-titlebar">
-                <div class="oc-titlebar-dots" aria-hidden="true"><span></span><span></span><span></span></div>
-                <span class="oc-titlebar-path">opencode — ~/projects/postal</span>
-                <span id="computer-status" class="oc-titlebar-status" data-tone="idle"><span class="oc-status-dot"></span> idle</span>
+            <div class="oc-console order-2 lg:order-1">
+              <div id="demo-computer" class="oc-window">
+                <div class="oc-titlebar">
+                  <div class="oc-titlebar-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+                  <span class="oc-titlebar-path">opencode — ~/projects/postal</span>
+                </div>
+
+                <div class="oc-screen">
+                  <div class="oc-header">
+                    <OpenCodeWordmark class="oc-wordmark" />
+                    <div class="oc-header-meta">
+                      <span class="oc-session">postal-ui</span>
+                    </div>
+                  </div>
+
+                  <div id="computer-feed" class="oc-feed">
+                    <p class="oc-line oc-line--status"><span class="oc-glyph">·</span><span>enable JavaScript to run the simulation</span></p>
+                  </div>
+
+                  <div class="oc-composer">
+                    <div class="oc-composer-input">
+                      <span class="oc-chevron">❯</span>
+                      <span id="computer-prompt" class="oc-caret">Ask anything...</span>
+                    </div>
+                    <div class="oc-composer-footer">
+                      <span class="oc-agent">Build</span>
+                      <span class="oc-sep">·</span>
+                      <span class="oc-model-name">Big Pickle</span>
+                      <span class="oc-brand">OpenCode</span>
+                    </div>
+                  </div>
+
+                  <div class="oc-statusbar">
+                    <span>~/projects/postal</span>
+                    <span class="oc-shortcuts">
+                      <span class="oc-telegram"><TelegramPlane class="oc-telegram-icon" /> Telegram on</span>
+                      <span>shift+tab agents</span>
+                      <span>ctrl+p commands</span>
+                    </span>
+                  </div>
+                </div>
               </div>
 
-              <div class="oc-screen">
-                <div class="oc-header">
-                  <OpenCodeWordmark class="oc-wordmark" />
-                  <div class="oc-header-meta">
-                    <span class="oc-session">postal-ui</span>
-                    <span class="oc-model">gpt-5.1-codex</span>
-                  </div>
-                </div>
-
-                <div id="computer-feed" class="oc-feed">
-                  <p class="oc-line oc-line--status"><span class="oc-glyph">·</span><span>enable JavaScript to run the simulation</span></p>
-                </div>
-
-                <div class="oc-composer">
-                  <div class="oc-composer-input">
-                    <span class="oc-chevron">❯</span>
-                    <span id="computer-prompt" class="oc-caret">waiting for events</span>
-                  </div>
-                  <div class="oc-composer-footer">
-                    <span class="oc-agent">Build</span>
-                    <span class="oc-sep">·</span>
-                    <span class="oc-model-name">Big Pickle</span>
-                    <span class="oc-brand">OpenCode</span>
-                  </div>
-                </div>
-
-                <div class="oc-statusbar">
-                  <span>~/projects/postal</span>
-                  <span class="oc-shortcuts"><span>shift+tab agents</span><span>ctrl+p commands</span></span>
-                </div>
+              <div id="computer-status" class="oc-session-status" data-tone="idle">
+                <span class="oc-status-dot"></span> session idle
               </div>
             </div>
 
@@ -276,7 +284,6 @@ const description =
     const stage = byId<HTMLElement>('demo-stage');
     const computerFeed = byId<HTMLElement>('computer-feed');
     const phoneFeed = byId<HTMLElement>('phone-feed');
-    const computerPrompt = byId<HTMLElement>('computer-prompt');
     const computerStatus = byId<HTMLElement>('computer-status');
     const stageStatus = byId<HTMLElement>('demo-stage-status');
     const caption = byId<HTMLElement>('demo-caption');
@@ -339,11 +346,6 @@ const description =
         stageStatus.innerHTML = `<span class="demo-live-dot"></span> ${esc(text)}`;
       };
 
-      const setPromptLine = (text: string, caret = true) => {
-        computerPrompt.textContent = text;
-        computerPrompt.classList.toggle('oc-caret', caret);
-      };
-
       const setComposer = (enabled: boolean, value = '') => {
         phoneInput.disabled = !enabled;
         phoneSend.disabled = !enabled;
@@ -370,9 +372,8 @@ const description =
         computerFeed.innerHTML = '';
         phoneFeed.innerHTML = '';
         setComposer(false);
-        setComputerStatus('idle', 'idle');
+        setComputerStatus('idle', 'session idle');
         setStageStatus('live', 'running');
-        setPromptLine('waiting for events');
       }
 
       function addComputerLine(
@@ -650,8 +651,7 @@ const description =
       });
 
       async function playFinished(myRun: number) {
-        setComputerStatus('live', 'working');
-        setPromptLine('session running');
+        setComputerStatus('live', 'session running');
         await wait(350);
         if (!isActive(myRun)) return;
         addComputerLine('user', 'Refactor the sidebar state and run the checks.', myRun);
@@ -664,8 +664,7 @@ const description =
         await wait(450);
         if (!isActive(myRun)) return;
         addComputerLine('status', 'session finished · 2m 14s', myRun);
-        setComputerStatus('done', 'finished');
-        setPromptLine('session finished');
+        setComputerStatus('done', 'session finished');
         showNotification('Session finished', 'Refactor the sidebar state — 2m 14s');
         await wait(400);
         if (!isActive(myRun)) return;
@@ -679,8 +678,7 @@ const description =
       }
 
       async function playQuestion(myRun: number) {
-        setComputerStatus('live', 'working');
-        setPromptLine('session running');
+        setComputerStatus('live', 'session running');
         await wait(300);
         if (!isActive(myRun)) return;
         addComputerLine('user', 'Add a test for the mute @all setting.', myRun);
@@ -697,8 +695,7 @@ const description =
           },
           myRun,
         );
-        setComputerStatus('waiting', 'waiting');
-        setPromptLine('waiting for you');
+        setComputerStatus('waiting', 'waiting for you');
         setStageStatus('waiting', 'waiting for you');
         showNotification('Agent has a question', 'Where should the mute preference live?');
         await wait(400);
@@ -721,8 +718,7 @@ const description =
         if (!isActive(myRun)) return;
         addPhoneUser(choice, myRun);
         markPanelChoice(choice);
-        setComputerStatus('live', 'working');
-        setPromptLine('session running');
+        setComputerStatus('live', 'session running');
         setStageStatus('live', 'working');
         await wait(250);
         if (!isActive(myRun)) return;
@@ -733,8 +729,7 @@ const description =
         await wait(350);
         if (!isActive(myRun)) return;
         addComputerLine('status', 'session finished · 1m 42s', myRun);
-        setComputerStatus('done', 'finished');
-        setPromptLine('session finished');
+        setComputerStatus('done', 'session finished');
         showNotification('Session finished', `Migration added — ${choice}`);
         await wait(350);
         if (!isActive(myRun)) return;
@@ -746,8 +741,7 @@ const description =
       }
 
       async function playPermission(myRun: number): Promise<boolean> {
-        setComputerStatus('live', 'working');
-        setPromptLine('session running');
+        setComputerStatus('live', 'session running');
         await wait(300);
         if (!isActive(myRun)) return false;
         addComputerLine('user', 'Push the fix to the branch.', myRun);
@@ -760,8 +754,7 @@ const description =
           { label: 'PERMISSION', title: 'Allow this command?', code: 'git push origin fix/sidebar-state' },
           myRun,
         );
-        setComputerStatus('waiting', 'waiting');
-        setPromptLine('waiting for you');
+        setComputerStatus('waiting', 'waiting for you');
         setStageStatus('waiting', 'waiting for you');
         showNotification('Permission requested', 'git push origin fix/sidebar-state');
         await wait(400);
@@ -785,8 +778,7 @@ const description =
         if (choice === 'approve') {
           addPhoneUser('Approved', myRun);
           markPanelChoice('approved by telegram');
-          setComputerStatus('live', 'working');
-          setPromptLine('session running');
+          setComputerStatus('live', 'session running');
           setStageStatus('live', 'working');
           await wait(250);
           if (!isActive(myRun)) return false;
@@ -797,8 +789,7 @@ const description =
           await wait(350);
           if (!isActive(myRun)) return false;
           addComputerLine('status', 'session finished · 38s', myRun);
-          setComputerStatus('done', 'finished');
-          setPromptLine('session finished');
+          setComputerStatus('done', 'session finished');
           showNotification('Session finished', 'Pushed fix/sidebar-state — 12 files');
           await wait(350);
           if (!isActive(myRun)) return false;
@@ -811,8 +802,7 @@ const description =
         } else {
           addPhoneUser('Denied', myRun);
           markPanelChoice('denied by telegram');
-          setComputerStatus('idle', 'stopped');
-          setPromptLine('permission denied', false);
+          setComputerStatus('idle', 'session stopped');
           setStageStatus('idle', 'stopped');
           await wait(250);
           if (!isActive(myRun)) return false;
@@ -832,8 +822,7 @@ const description =
       }
 
       async function playPrompt(myRun: number) {
-        setComputerStatus('idle', 'idle');
-        setPromptLine('waiting for a prompt');
+        setComputerStatus('idle', 'waiting for a prompt');
         setStageStatus('waiting', 'waiting for you');
         addComputerLine('status', 'waiting for a prompt from Telegram', myRun, { instant: true });
         setComposer(true, 'Run the tests and fix any failures.');
@@ -843,8 +832,7 @@ const description =
         if (!isActive(myRun)) return;
         addPhoneUser(prompt, myRun);
         setComposer(false);
-        setComputerStatus('live', 'working');
-        setPromptLine('session running');
+        setComputerStatus('live', 'session running');
         setStageStatus('live', 'working');
         await wait(250);
         if (!isActive(myRun)) return;
@@ -864,8 +852,7 @@ const description =
         await wait(350);
         if (!isActive(myRun)) return;
         addComputerLine('status', 'session finished · 1m 08s', myRun);
-        setComputerStatus('done', 'finished');
-        setPromptLine('session finished');
+        setComputerStatus('done', 'session finished');
         showNotification('Session finished', 'Tests fixed — 148 passed');
         await wait(350);
         if (!isActive(myRun)) return;
@@ -877,8 +864,7 @@ const description =
       }
 
       async function playFailed(myRun: number) {
-        setComputerStatus('live', 'working');
-        setPromptLine('session running');
+        setComputerStatus('live', 'session running');
         await wait(300);
         if (!isActive(myRun)) return;
         addComputerLine('user', 'Run the full release build.', myRun);
@@ -894,8 +880,7 @@ const description =
         await wait(350);
         if (!isActive(myRun)) return;
         addComputerLine('status', 'session failed · 48s', myRun);
-        setComputerStatus('failed', 'failed');
-        setPromptLine('session failed', false);
+        setComputerStatus('failed', 'session failed');
         setStageStatus('failed', 'failed');
         showNotification('Session failed', 'cargo build --release — mismatched types');
         await wait(400);
