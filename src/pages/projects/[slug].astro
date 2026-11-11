@@ -104,6 +104,17 @@ const jsonLd = [
             ))}
           </section>
 
+          {project.slug === 'opencode-telegram' && (
+            <aside class="reveal mt-10 flex flex-wrap items-center justify-between gap-5 border hairline bg-ink-soft/60 p-5 md:p-6">
+              <div>
+                <p class="font-matrix text-[10px] tracking-[0.25em] text-bone-faint">...INTERACTIVE DEMO...</p>
+                <p class="mt-2 text-lg md:text-xl font-light text-bone">Watch a session hand off to Telegram.</p>
+                <p class="mt-1 text-sm font-light text-bone-faint">Answer a question, approve a permission, or send a prompt.</p>
+              </div>
+              <BracketLink href="/projects/opencode-telegram/demo/" label="Open the demo" size="text-lg" />
+            </aside>
+          )}
+
           {isContribution && project.contribution && (
             <>
               <section class="reveal mt-16 border-l-2 border-accent/60 pl-5 md:pl-8">

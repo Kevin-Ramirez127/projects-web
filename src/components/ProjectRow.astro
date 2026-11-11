@@ -8,7 +8,8 @@ interface Props {
 }
 
 const { project, index } = Astro.props;
-const source = project.links[0];
+const source = project.links.find((link) => link.label === 'Source');
+const demo = project.links.find((link) => link.label === 'Interactive demo');
 ---
 <article class="group border-b hairline transition-colors hover:border-accent/40">
   <div class="grid gap-5 py-9 md:grid-cols-[3.5rem_minmax(0,1fr)] md:gap-8 md:py-11">
@@ -35,6 +36,14 @@ const source = project.links[0];
         </div>
         <div class="flex items-center gap-6">
           <BracketLink href={projectPath(project.slug)} label="case study" size="text-lg" />
+          {demo && (
+            <a
+              href={demo.href}
+              class="font-matrix text-[11px] tracking-widest text-accent hover:text-bone transition-colors"
+            >
+              demo ↗
+            </a>
+          )}
           {source && (
             <a
               href={source.href}

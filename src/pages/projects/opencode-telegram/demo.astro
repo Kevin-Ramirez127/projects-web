@@ -1,0 +1,999 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Nav from '../../../components/Nav.astro';
+import TelegramPlane from '../../../components/TelegramPlane.astro';
+import '../../../styles/demo.css';
+
+const scenarios = [
+  {
+    id: 'finished',
+    number: '01',
+    title: 'Session finished',
+    description: 'A completed run lands on your phone.',
+  },
+  {
+    id: 'question',
+    number: '02',
+    title: 'Agent question',
+    description: 'The agent stops for a decision. You answer from Telegram.',
+  },
+  {
+    id: 'permission',
+    number: '03',
+    title: 'Permission request',
+    description: 'Approve or deny a tool call without opening the terminal.',
+  },
+  {
+    id: 'prompt',
+    number: '04',
+    title: 'Prompt from Telegram',
+    description: 'Send a new instruction to the bound session.',
+  },
+  {
+    id: 'failed',
+    number: '05',
+    title: 'Session failed',
+    description: 'A failure arrives with the error tail.',
+  },
+];
+
+const title = 'opencode-telegram — Interactive demo';
+const description =
+  'An interactive simulation of opencode-telegram: watch an OpenCode session hand off to Telegram, answer an agent question, approve a permission, or send a prompt from your phone.';
+---
+<BaseLayout title={`${title} — Kevin Ramirez`} description={description} path="/projects/opencode-telegram/demo/" type="article">
+  <Nav />
+
+  <main id="main" class="relative z-10">
+    <section id="top" class="relative overflow-hidden">
+      <div class="mx-auto max-w-6xl px-6 md:px-10 pt-28 md:pt-36 pb-8 md:pb-10">
+        <a href="/projects/opencode-telegram/" class="inline-flex items-center gap-2 font-matrix text-[11px] tracking-[0.2em] text-bone-faint hover:text-accent transition-colors">
+          <span aria-hidden="true">←</span> OPENCODE-TELEGRAM
+        </a>
+
+        <p data-hero class="mt-10 font-matrix text-xs tracking-[0.25em] text-bone-faint">...INTERACTIVE DEMO...</p>
+        <h1 data-hero class="mt-3 text-5xl sm:text-6xl md:text-7xl font-extralight leading-[1.02] tracking-tight text-bone">
+          Agent, meet phone<span class="text-accent">.</span>
+        </h1>
+        <p data-hero class="mt-5 max-w-2xl text-lg md:text-xl leading-relaxed text-bone/85 font-light">
+          Pick an interaction and watch an OpenCode session hand off to Telegram. The phone is live: answer the agent, approve a permission, or send a prompt.
+        </p>
+        <div data-hero class="mt-7 flex flex-wrap items-center gap-x-6 gap-y-2 font-matrix text-[10px] tracking-[0.18em] text-bone-faint">
+          <span class="inline-flex items-center gap-2"><span class="demo-live-dot"></span> LIVE SIMULATION</span>
+          <span>5 SCENARIOS</span>
+          <span>NO BOT TOKEN</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="relative">
+      <div class="mx-auto max-w-6xl px-6 md:px-10 pb-16 md:pb-24">
+        <div
+          id="demo-stage"
+          class="reveal demo-shell scroll-mt-24 border hairline bg-ink-soft/40 p-3 md:p-5"
+          role="region"
+          aria-label="OpenCode and Telegram simulation"
+        >
+          <div class="demo-toolbar">
+            <div>
+              <p class="font-matrix text-[9px] tracking-[0.22em] text-bone-faint">...LIVE SIMULATION...</p>
+              <p id="demo-caption" class="mt-1 font-matrix text-[11px] tracking-[0.16em] text-bone" aria-live="polite">01 / Session finished</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <span id="demo-stage-status" class="demo-stage-status" data-tone="live" aria-live="polite"><span class="demo-live-dot"></span> running</span>
+              <button id="demo-replay" type="button" class="demo-replay">[ replay ]</button>
+            </div>
+          </div>
+
+          <div class="mt-4 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+            {/* Computer */}
+            <div id="demo-computer" class="demo-terminal order-2 lg:order-1">
+              <div class="demo-window-bar">
+                <div class="demo-window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+                <p class="demo-window-title">opencode — ~/projects/postal</p>
+                <p id="computer-status" class="demo-window-status" data-tone="idle"><span class="demo-status-dot"></span> idle</p>
+              </div>
+              <div class="demo-terminal-body">
+                <div class="demo-tui-head">
+                  <div class="flex items-center gap-3">
+                    <div class="demo-mark">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect x="3" y="4" width="18" height="16" rx="3" />
+                        <path d="m8 9 3 3-3 3" />
+                        <path d="M13 15h3" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="demo-tui-name">OpenCode</p>
+                      <p class="demo-tui-meta">session · postal-ui</p>
+                    </div>
+                  </div>
+                  <span class="demo-tui-model">gpt-5.1-codex</span>
+                </div>
+
+                <div id="computer-feed" class="demo-feed">
+                  <p class="demo-line demo-line--status"><span class="demo-glyph">·</span><span>enable JavaScript to run the simulation</span></p>
+                </div>
+
+                <div class="mt-3 flex items-center gap-2 border-t hairline pt-3 font-matrix text-[10px] text-bone-faint">
+                  <span class="text-accent">&gt;</span>
+                  <span id="computer-prompt" class="demo-caret">waiting for events</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Phone */}
+            <div id="demo-phone" class="demo-phone order-1 lg:order-2">
+              <div class="demo-phone-screen">
+                <div class="demo-notch" aria-hidden="true"></div>
+                <div class="demo-phone-status">
+                  <span>09:41</span>
+                  <div class="flex items-center gap-1.5" aria-hidden="true">
+                    <svg width="13" height="10" viewBox="0 0 13 10" fill="currentColor"><rect x="0" y="7" width="2" height="3" rx=".5" /><rect x="3.5" y="5" width="2" height="5" rx=".5" /><rect x="7" y="3" width="2" height="7" rx=".5" /><rect x="10.5" y="0" width="2" height="10" rx=".5" /></svg>
+                    <svg width="14" height="10" viewBox="0 0 14 10" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><path d="M1 3.5a9 9 0 0 1 12 0" /><path d="M3.5 6a5.5 5.5 0 0 1 7 0" /><circle cx="7" cy="8.5" r=".8" fill="currentColor" stroke="none" /></svg>
+                    <svg width="18" height="9" viewBox="0 0 18 9" fill="none" stroke="currentColor"><rect x=".5" y=".5" width="15" height="8" rx="2" /><rect x="2" y="2" width="10" height="5" rx="1" fill="currentColor" stroke="none" /><path d="M17 3v3" stroke-width="2" stroke-linecap="round" /></svg>
+                  </div>
+                </div>
+
+                <div class="demo-phone-header">
+                  <div class="demo-bot-avatar"><TelegramPlane /></div>
+                  <div class="min-w-0">
+                    <p class="demo-phone-name">opencode-telegram</p>
+                    <p class="demo-phone-sub"><span class="demo-online-dot"></span> bot</p>
+                  </div>
+                  <span class="ml-auto font-matrix text-[14px] text-bone-faint" aria-hidden="true">···</span>
+                </div>
+
+                <div id="phone-feed" class="demo-phone-feed">
+                  <div class="demo-msg demo-msg--system">enable JavaScript to run the simulation</div>
+                </div>
+
+                <div id="phone-composer" class="demo-phone-composer">
+                  <input id="phone-input" type="text" disabled placeholder="Notifications only" aria-label="Message the agent" autocomplete="off" />
+                  <button id="phone-send" type="button" disabled aria-label="Send message">
+                    <TelegramPlane />
+                  </button>
+                </div>
+
+                <div id="phone-notification" class="demo-notification" role="status" aria-live="polite">
+                  <div class="demo-bot-avatar demo-bot-avatar--sm"><TelegramPlane /></div>
+                  <div class="min-w-0">
+                    <p class="demo-notification-meta">opencode-telegram · now</p>
+                    <p id="notif-title" class="demo-notification-title">Session finished</p>
+                    <p id="notif-body" class="demo-notification-body">A completed run lands on your phone.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Scenario menu */}
+        <div class="reveal mt-10">
+          <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p class="font-matrix text-[10px] tracking-[0.25em] text-bone-faint">...CHOOSE AN INTERACTION...</p>
+              <h2 class="mt-2 text-3xl md:text-4xl font-extralight tracking-tight">Try a scenario</h2>
+            </div>
+            <p class="max-w-xs text-xs leading-relaxed text-bone-faint font-light">
+              The phone is live. Click the buttons inside the chat when a scenario asks you to.
+            </p>
+          </div>
+
+          <div class="mt-6 grid gap-px bg-line border hairline sm:grid-cols-2 lg:grid-cols-5" role="group" aria-label="Demo scenarios">
+            {scenarios.map((scenario, index) => (
+              <button
+                type="button"
+                class="demo-scenario bg-ink p-5 text-left sm:last:col-span-2 lg:last:col-span-1"
+                data-scenario={scenario.id}
+                data-active={index === 0 ? 'true' : 'false'}
+                aria-pressed={index === 0 ? 'true' : 'false'}
+              >
+                <span class="demo-scenario-number">{scenario.number}</span>
+                <span class="demo-scenario-title">{scenario.title}</span>
+                <span class="demo-scenario-desc">{scenario.description}</span>
+              </button>
+            ))}
+          </div>
+          <p class="mt-4 max-w-3xl text-[11px] leading-relaxed text-bone-faint font-light">
+            Simulation only. In the real daemon, notifications are off by default, and prompting or custom answers are opt-in.
+          </p>
+        </div>
+
+        {/* Architecture strip */}
+        <div class="reveal mt-14">
+          <p class="font-matrix text-[10px] tracking-[0.25em] text-bone-faint">...WHAT YOU ARE WATCHING...</p>
+          <div class="mt-5 grid gap-px bg-line border hairline sm:grid-cols-3">
+            <div class="bg-ink p-5 md:p-6">
+              <div class="flex items-center gap-3 text-accent">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="4" width="18" height="16" rx="3" />
+                  <path d="m8 9 3 3-3 3" />
+                  <path d="M13 15h3" />
+                </svg>
+                <span class="font-matrix text-[10px] tracking-[0.18em]">01 / OPENCODE</span>
+              </div>
+              <p class="mt-4 text-sm leading-relaxed text-bone/85 font-light">
+                The session emits SSE events: finished, failed, questions, permissions and retries.
+              </p>
+            </div>
+            <div class="bg-ink p-5 md:p-6">
+              <div class="flex items-center gap-3 text-accent">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 3 20 6v5c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-3Z" />
+                  <path d="m9 12 2 2 4-4" />
+                </svg>
+                <span class="font-matrix text-[10px] tracking-[0.18em]">02 / DAEMON</span>
+              </div>
+              <p class="mt-4 text-sm leading-relaxed text-bone/85 font-light">
+                The Go daemon filters events through the allowlist and turns the ones that need you into messages.
+              </p>
+            </div>
+            <div class="bg-ink p-5 md:p-6">
+              <div class="flex items-center gap-3 text-accent">
+                <TelegramPlane class="h-5 w-5" />
+                <span class="font-matrix text-[10px] tracking-[0.18em]">03 / TELEGRAM</span>
+              </div>
+              <p class="mt-4 text-sm leading-relaxed text-bone/85 font-light">
+                Your allowlisted chat gets the notification. When you answer, the decision travels back to the session.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="border-t hairline">
+      <div class="mx-auto max-w-6xl px-6 md:px-10 py-8 flex flex-wrap items-center justify-between gap-4 font-matrix text-[11px] tracking-widest text-bone-faint">
+        <a href="/projects/opencode-telegram/" class="text-accent hover:text-bone transition-colors">← opencode-telegram case study</a>
+        <span>Simulated session · no bot token required</span>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    import { animate, inView } from 'motion';
+    import { MOTION } from '../../../lib/motion-config.ts';
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const byId = <T extends HTMLElement>(id: string): T => {
+      const element = document.getElementById(id);
+      if (!element) throw new Error(`Missing #${id}`);
+      return element as T;
+    };
+
+    const stage = byId<HTMLElement>('demo-stage');
+    const computerFeed = byId<HTMLElement>('computer-feed');
+    const phoneFeed = byId<HTMLElement>('phone-feed');
+    const computerPrompt = byId<HTMLElement>('computer-prompt');
+    const computerStatus = byId<HTMLElement>('computer-status');
+    const stageStatus = byId<HTMLElement>('demo-stage-status');
+    const caption = byId<HTMLElement>('demo-caption');
+    const phoneInput = byId<HTMLInputElement>('phone-input');
+    const phoneSend = byId<HTMLButtonElement>('phone-send');
+    const phoneComposer = byId<HTMLElement>('phone-composer');
+    const notification = byId<HTMLElement>('phone-notification');
+    const notifTitle = byId<HTMLElement>('notif-title');
+    const notifBody = byId<HTMLElement>('notif-body');
+    const replay = byId<HTMLButtonElement>('demo-replay');
+    const scenarioButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('.demo-scenario'));
+
+    const sleep = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
+      const wait = (ms: number) => sleep(reduceMotion ? Math.min(ms, 120) : ms);
+
+      const play = (el: Element | Element[], keyframes: any, options: any) => {
+        if (reduceMotion) return;
+        try {
+          animate(el, keyframes, options);
+        } catch {}
+      };
+
+      const playAndWait = async (el: Element | Element[], keyframes: any, options: any) => {
+        if (reduceMotion) return;
+        try {
+          await animate(el, keyframes, options).finished;
+        } catch {}
+      };
+
+      let runId = 0;
+      let started = false;
+      let currentScenario = 'finished';
+      let pendingPrompt: ((value: string) => void) | null = null;
+      let notificationTimer: number | undefined;
+
+      const isActive = (id: number) => id === runId;
+      const esc = (value: string) =>
+        value.replace(/[&<>"']/g, (character) => {
+          const map: Record<string, string> = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+          };
+          return map[character] ?? character;
+        });
+
+      const scrollFeed = (feed: HTMLElement) => {
+        feed.scrollTop = feed.scrollHeight;
+      };
+
+      const setComputerStatus = (tone: string, text: string) => {
+        computerStatus.dataset.tone = tone;
+        computerStatus.innerHTML = `<span class="demo-status-dot"></span> ${esc(text)}`;
+      };
+
+      const setStageStatus = (tone: string, text: string) => {
+        stageStatus.dataset.tone = tone;
+        stageStatus.innerHTML = `<span class="demo-live-dot"></span> ${esc(text)}`;
+      };
+
+      const setPromptLine = (text: string, caret = true) => {
+        computerPrompt.textContent = text;
+        computerPrompt.classList.toggle('demo-caret', caret);
+      };
+
+      const setComposer = (enabled: boolean, value = '') => {
+        phoneInput.disabled = !enabled;
+        phoneSend.disabled = !enabled;
+        phoneInput.placeholder = enabled ? 'Message the agent…' : 'Notifications only';
+        phoneInput.value = value;
+        phoneComposer.classList.toggle('is-live', enabled);
+      };
+
+      const showNotification = (title: string, body: string) => {
+        if (notificationTimer) window.clearTimeout(notificationTimer);
+        notifTitle.textContent = title;
+        notifBody.textContent = body;
+        notification.classList.add('is-show');
+        notificationTimer = window.setTimeout(
+          () => notification.classList.remove('is-show'),
+          reduceMotion ? 1400 : 2600,
+        );
+      };
+
+      function resetStage() {
+        pendingPrompt = null;
+        if (notificationTimer) window.clearTimeout(notificationTimer);
+        notification.classList.remove('is-show');
+        computerFeed.innerHTML = '';
+        phoneFeed.innerHTML = '';
+        setComposer(false);
+        setComputerStatus('idle', 'idle');
+        setStageStatus('live', 'running');
+        setPromptLine('waiting for events');
+      }
+
+      function addComputerLine(
+        kind: 'user' | 'assistant' | 'tool' | 'status' | 'error',
+        text: string,
+        myRun: number,
+        options: { type?: boolean; instant?: boolean } = {},
+      ) {
+        if (!isActive(myRun)) return;
+        const line = document.createElement('div');
+        line.className = `demo-line demo-line--${kind}`;
+        const glyph = document.createElement('span');
+        glyph.className = 'demo-glyph';
+        glyph.textContent = kind === 'user' ? '›' : kind === 'assistant' ? '●' : kind === 'tool' ? '▸' : kind === 'error' ? '!' : '·';
+        const body = document.createElement('div');
+        body.className = 'min-w-0';
+        if (!options.type) body.textContent = text;
+        line.append(glyph, body);
+        computerFeed.append(line);
+        scrollFeed(computerFeed);
+        if (!options.instant) play(line, { opacity: [0, 1], y: [6, 0] }, { duration: MOTION.duration.fast, ease: MOTION.ease.out });
+        if (options.type) void typeText(body, text, myRun);
+      }
+
+      async function typeText(element: HTMLElement, text: string, myRun: number) {
+        if (reduceMotion) {
+          element.textContent = text;
+          return;
+        }
+        element.classList.add('demo-caret');
+        const words = text.split(' ');
+        element.textContent = '';
+        for (let index = 0; index < words.length; index += 1) {
+          if (!isActive(myRun)) {
+            element.classList.remove('demo-caret');
+            return;
+          }
+          element.textContent += `${index === 0 ? '' : ' '}${words[index]}`;
+          scrollFeed(computerFeed);
+          await sleep(words[index].length > 6 ? 44 : 28);
+        }
+        element.classList.remove('demo-caret');
+      }
+
+      function addComputerTool(command: string, result: string, myRun: number, failed = false) {
+        if (!isActive(myRun)) return;
+        const line = document.createElement('div');
+        line.className = 'demo-line demo-line--tool';
+        const glyph = document.createElement('span');
+        glyph.className = 'demo-glyph';
+        glyph.textContent = '▸';
+        const body = document.createElement('div');
+        body.className = 'min-w-0';
+        const commandLine = document.createElement('div');
+        const label = document.createElement('strong');
+        label.textContent = 'bash';
+        const code = document.createElement('code');
+        code.textContent = command;
+        commandLine.append(label, document.createTextNode(' '), code);
+        const resultLine = document.createElement('div');
+        resultLine.className = 'demo-tool-result';
+        resultLine.textContent = result;
+        if (failed) resultLine.style.color = 'var(--color-bone)';
+        body.append(commandLine, resultLine);
+        line.append(glyph, body);
+        computerFeed.append(line);
+        scrollFeed(computerFeed);
+        play(line, { opacity: [0, 1], y: [6, 0] }, { duration: MOTION.duration.fast, ease: MOTION.ease.out });
+      }
+
+      function addComputerError(title: string, detail: string, myRun: number) {
+        if (!isActive(myRun)) return;
+        const line = document.createElement('div');
+        line.className = 'demo-line demo-line--error';
+        const glyph = document.createElement('span');
+        glyph.className = 'demo-glyph';
+        glyph.textContent = '!';
+        const body = document.createElement('div');
+        body.className = 'min-w-0';
+        const heading = document.createElement('strong');
+        heading.textContent = title;
+        const text = document.createElement('div');
+        text.textContent = detail;
+        body.append(heading, text);
+        line.append(glyph, body);
+        computerFeed.append(line);
+        scrollFeed(computerFeed);
+        play(line, { opacity: [0, 1], y: [6, 0] }, { duration: MOTION.duration.fast, ease: MOTION.ease.out });
+      }
+
+      function addComputerPanel(
+        panelData: { label: string; title: string; code?: string; options?: string[] },
+        myRun: number,
+      ) {
+        if (!isActive(myRun)) return null;
+        const panel = document.createElement('div');
+        panel.className = 'demo-panel';
+        const label = document.createElement('p');
+        label.className = 'demo-panel-label';
+        label.textContent = panelData.label;
+        const title = document.createElement('p');
+        title.className = 'demo-panel-title';
+        title.textContent = panelData.title;
+        panel.append(label, title);
+
+        if (panelData.code) {
+          const code = document.createElement('code');
+          code.className = 'demo-code mt-2 inline-block';
+          code.textContent = panelData.code;
+          panel.append(code);
+        }
+
+        if (panelData.options) {
+          const options = document.createElement('div');
+          options.className = 'demo-panel-options';
+          panelData.options.forEach((option) => {
+            const item = document.createElement('span');
+            item.className = 'demo-panel-option';
+            item.textContent = option;
+            options.append(item);
+          });
+          panel.append(options);
+        }
+
+        computerFeed.append(panel);
+        scrollFeed(computerFeed);
+        play(panel, { opacity: [0, 1], y: [6, 0] }, { duration: MOTION.duration.fast, ease: MOTION.ease.out });
+        return panel;
+      }
+
+      function markPanelChoice(value: string) {
+        const panels = computerFeed.querySelectorAll<HTMLElement>('.demo-panel');
+        const panel = panels[panels.length - 1];
+        if (!panel) return;
+        let options = panel.querySelector<HTMLElement>('.demo-panel-options');
+        if (!options) {
+          options = document.createElement('div');
+          options.className = 'demo-panel-options';
+          panel.append(options);
+        }
+        const match = Array.from(options.querySelectorAll<HTMLElement>('.demo-panel-option')).find(
+          (option) => option.textContent?.trim() === value,
+        );
+        if (match) {
+          match.classList.add('is-picked');
+          return;
+        }
+        const picked = document.createElement('span');
+        picked.className = 'demo-panel-option is-picked';
+        picked.textContent = value;
+        options.append(picked);
+      }
+
+      function addPhoneBot(
+        html: string,
+        options: { label?: string; actions?: { label: string; value: string }[] },
+        myRun: number,
+      ) {
+        if (!isActive(myRun)) return { el: null, buttons: [] as HTMLButtonElement[] };
+        const message = document.createElement('div');
+        message.className = 'demo-msg';
+        let content = '';
+        if (options.label) {
+          content += `<div class="demo-msg-head"><span class="demo-msg-head-dot"></span>${esc(options.label)}</div>`;
+        }
+        content += html;
+        if (options.actions && options.actions.length > 0) {
+          content += `<div class="demo-msg-actions">${options.actions
+            .map(
+              (action) =>
+                `<button type="button" class="demo-msg-btn" data-value="${esc(action.value)}">${esc(action.label)}</button>`,
+            )
+            .join('')}</div>`;
+        }
+        message.innerHTML = content;
+        const buttons = Array.from(message.querySelectorAll<HTMLButtonElement>('button'));
+        phoneFeed.append(message);
+        scrollFeed(phoneFeed);
+        play(message, { opacity: [0, 1], y: [14, 0], scale: [0.98, 1] }, { duration: MOTION.duration.fast, ease: MOTION.ease.out });
+        return { el: message, buttons };
+      }
+
+      function addPhoneUser(text: string, myRun: number) {
+        if (!isActive(myRun)) return;
+        const message = document.createElement('div');
+        message.className = 'demo-msg demo-msg--user';
+        const body = document.createElement('p');
+        body.className = 'demo-msg-body';
+        body.textContent = text;
+        message.append(body);
+        phoneFeed.append(message);
+        scrollFeed(phoneFeed);
+        play(message, { opacity: [0, 1], y: [14, 0], scale: [0.98, 1] }, { duration: MOTION.duration.fast, ease: MOTION.ease.out });
+      }
+
+      function addPhoneSystem(text: string, myRun: number) {
+        if (!isActive(myRun)) return;
+        const message = document.createElement('div');
+        message.className = 'demo-msg demo-msg--system';
+        message.textContent = text;
+        phoneFeed.append(message);
+        scrollFeed(phoneFeed);
+        play(message, { opacity: [0, 1], y: [6, 0] }, { duration: MOTION.duration.fast, ease: MOTION.ease.out });
+      }
+
+      async function showTyping(myRun: number, duration = 700) {
+        if (!isActive(myRun)) return;
+        const message = document.createElement('div');
+        message.className = 'demo-msg';
+        message.innerHTML = '<span class="demo-typing"><span></span><span></span><span></span></span>';
+        phoneFeed.append(message);
+        scrollFeed(phoneFeed);
+        play(message, { opacity: [0, 1], y: [8, 0] }, { duration: MOTION.duration.fast, ease: MOTION.ease.out });
+        await wait(duration);
+        if (!isActive(myRun)) {
+          message.remove();
+          return;
+        }
+        await playAndWait(message, { opacity: 0, y: -4 }, { duration: 0.15 });
+        message.remove();
+      }
+
+      function waitForChoice(buttons: HTMLButtonElement[], myRun: number): Promise<string> {
+        if (buttons.length === 0) return Promise.resolve('');
+        return new Promise((resolve) => {
+          buttons.forEach((button) => {
+            button.addEventListener(
+              'click',
+              () => {
+                if (!isActive(myRun)) return;
+                buttons.forEach((item) => {
+                  item.disabled = true;
+                });
+                button.classList.add('is-picked');
+                play(button, { scale: [1, 0.94, 1] }, { duration: 0.18, ease: MOTION.ease.out });
+                resolve(button.dataset.value ?? '');
+              },
+              { once: true },
+            );
+          });
+        });
+      }
+
+      function waitForPrompt(): Promise<string> {
+        return new Promise((resolve) => {
+          pendingPrompt = resolve;
+        });
+      }
+
+      function submitPrompt() {
+        if (!pendingPrompt) return;
+        const value = phoneInput.value.trim();
+        if (!value) {
+          play(phoneInput, { x: [0, -4, 4, -2, 0] }, { duration: 0.25, ease: MOTION.ease.out });
+          return;
+        }
+        const resolve = pendingPrompt;
+        pendingPrompt = null;
+        phoneInput.disabled = true;
+        phoneSend.disabled = true;
+        resolve(value);
+      }
+
+      phoneSend.addEventListener('click', submitPrompt);
+      phoneInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          submitPrompt();
+        }
+      });
+
+      async function playFinished(myRun: number) {
+        setComputerStatus('live', 'working');
+        setPromptLine('session running');
+        await wait(350);
+        if (!isActive(myRun)) return;
+        addComputerLine('user', 'Refactor the sidebar state and run the checks.', myRun);
+        await wait(450);
+        if (!isActive(myRun)) return;
+        addComputerLine('assistant', 'Done. I moved the state out of the route component, updated the call sites, and ran the checks.', myRun, { type: true });
+        await wait(900);
+        if (!isActive(myRun)) return;
+        addComputerTool('cargo test', '✓ 148 passed', myRun);
+        await wait(450);
+        if (!isActive(myRun)) return;
+        addComputerLine('status', 'session finished · 2m 14s', myRun);
+        setComputerStatus('done', 'finished');
+        setPromptLine('session finished');
+        showNotification('Session finished', 'Refactor the sidebar state — 2m 14s');
+        await wait(400);
+        if (!isActive(myRun)) return;
+        await showTyping(myRun, 650);
+        if (!isActive(myRun)) return;
+        addPhoneBot(
+          `<p class="demo-msg-title">Session finished</p><p class="demo-msg-body">2m 14s · postal-ui</p><p class="demo-msg-body">Moved the sidebar state out of the route component. 148 tests pass.</p>`,
+          { label: 'opencode-telegram' },
+          myRun,
+        );
+      }
+
+      async function playQuestion(myRun: number) {
+        setComputerStatus('live', 'working');
+        setPromptLine('session running');
+        await wait(300);
+        if (!isActive(myRun)) return;
+        addComputerLine('user', 'Add a test for the mute @all setting.', myRun);
+        await wait(400);
+        if (!isActive(myRun)) return;
+        addComputerLine('assistant', 'I need one decision before I write the migration.', myRun, { type: true });
+        await wait(850);
+        if (!isActive(myRun)) return;
+        addComputerPanel(
+          {
+            label: 'QUESTION',
+            title: 'Where should the mute preference live?',
+            options: ['chat_settings', 'global settings', 'both'],
+          },
+          myRun,
+        );
+        setComputerStatus('waiting', 'waiting');
+        setPromptLine('waiting for you');
+        setStageStatus('waiting', 'waiting for you');
+        showNotification('Agent has a question', 'Where should the mute preference live?');
+        await wait(400);
+        if (!isActive(myRun)) return;
+        await showTyping(myRun, 600);
+        if (!isActive(myRun)) return;
+        const { buttons } = addPhoneBot(
+          `<p class="demo-msg-title">I need one decision before I write the migration.</p><p class="demo-msg-body">Where should the mute preference live?</p>`,
+          {
+            label: 'opencode-telegram',
+            actions: [
+              { label: 'chat_settings', value: 'chat_settings' },
+              { label: 'global settings', value: 'global settings' },
+              { label: 'both', value: 'both' },
+            ],
+          },
+          myRun,
+        );
+        const choice = await waitForChoice(buttons, myRun);
+        if (!isActive(myRun)) return;
+        addPhoneUser(choice, myRun);
+        markPanelChoice(choice);
+        setComputerStatus('live', 'working');
+        setPromptLine('session running');
+        setStageStatus('live', 'working');
+        await wait(250);
+        if (!isActive(myRun)) return;
+        addComputerLine('assistant', `Using ${choice}. Writing the migration now.`, myRun, { type: true });
+        await wait(750);
+        if (!isActive(myRun)) return;
+        addComputerTool('cargo test', '✓ 3 tests added · 151 passed', myRun);
+        await wait(350);
+        if (!isActive(myRun)) return;
+        addComputerLine('status', 'session finished · 1m 42s', myRun);
+        setComputerStatus('done', 'finished');
+        setPromptLine('session finished');
+        showNotification('Session finished', `Migration added — ${choice}`);
+        await wait(350);
+        if (!isActive(myRun)) return;
+        addPhoneBot(
+          `<p class="demo-msg-title">Done.</p><p class="demo-msg-body">Using <code>${esc(choice)}</code>. Migration added and 151 tests pass.</p>`,
+          {},
+          myRun,
+        );
+      }
+
+      async function playPermission(myRun: number): Promise<boolean> {
+        setComputerStatus('live', 'working');
+        setPromptLine('session running');
+        await wait(300);
+        if (!isActive(myRun)) return false;
+        addComputerLine('user', 'Push the fix to the branch.', myRun);
+        await wait(400);
+        if (!isActive(myRun)) return false;
+        addComputerLine('assistant', 'The fix is committed. I need permission to push.', myRun, { type: true });
+        await wait(850);
+        if (!isActive(myRun)) return false;
+        addComputerPanel(
+          { label: 'PERMISSION', title: 'Allow this command?', code: 'git push origin fix/sidebar-state' },
+          myRun,
+        );
+        setComputerStatus('waiting', 'waiting');
+        setPromptLine('waiting for you');
+        setStageStatus('waiting', 'waiting for you');
+        showNotification('Permission requested', 'git push origin fix/sidebar-state');
+        await wait(400);
+        if (!isActive(myRun)) return false;
+        await showTyping(myRun, 600);
+        if (!isActive(myRun)) return false;
+        const { buttons } = addPhoneBot(
+          `<p class="demo-msg-title">Permission requested</p><p class="demo-msg-body">I want to run:</p><code class="demo-msg-code">git push origin fix/sidebar-state</code>`,
+          {
+            label: 'opencode-telegram',
+            actions: [
+              { label: 'Approve', value: 'approve' },
+              { label: 'Deny', value: 'deny' },
+            ],
+          },
+          myRun,
+        );
+        const choice = await waitForChoice(buttons, myRun);
+        if (!isActive(myRun)) return false;
+
+        if (choice === 'approve') {
+          addPhoneUser('Approved', myRun);
+          markPanelChoice('approved by telegram');
+          setComputerStatus('live', 'working');
+          setPromptLine('session running');
+          setStageStatus('live', 'working');
+          await wait(250);
+          if (!isActive(myRun)) return false;
+          addComputerLine('assistant', 'Permission granted. Pushing now.', myRun, { type: true });
+          await wait(550);
+          if (!isActive(myRun)) return false;
+          addComputerTool('git push origin fix/sidebar-state', '✓ pushed · 12 files', myRun);
+          await wait(350);
+          if (!isActive(myRun)) return false;
+          addComputerLine('status', 'session finished · 38s', myRun);
+          setComputerStatus('done', 'finished');
+          setPromptLine('session finished');
+          showNotification('Session finished', 'Pushed fix/sidebar-state — 12 files');
+          await wait(350);
+          if (!isActive(myRun)) return false;
+          addPhoneBot(
+            `<p class="demo-msg-title">Pushed.</p><p class="demo-msg-body">fix/sidebar-state is up to date. Session finished in 38s.</p>`,
+            {},
+            myRun,
+          );
+          return true;
+        } else {
+          addPhoneUser('Denied', myRun);
+          markPanelChoice('denied by telegram');
+          setComputerStatus('idle', 'stopped');
+          setPromptLine('permission denied', false);
+          setStageStatus('idle', 'stopped');
+          await wait(250);
+          if (!isActive(myRun)) return false;
+          addComputerLine('assistant', 'Understood. I will not push. The session is stopped.', myRun, { type: true });
+          await wait(600);
+          if (!isActive(myRun)) return false;
+          addComputerLine('status', 'permission denied · session stopped', myRun);
+          await showTyping(myRun, 500);
+          if (!isActive(myRun)) return false;
+          addPhoneBot(
+            `<p class="demo-msg-title">Denied.</p><p class="demo-msg-body">Understood. I won't push. The session is stopped.</p>`,
+            {},
+            myRun,
+          );
+          return false;
+        }
+      }
+
+      async function playPrompt(myRun: number) {
+        setComputerStatus('idle', 'idle');
+        setPromptLine('waiting for a prompt');
+        setStageStatus('waiting', 'waiting for you');
+        addComputerLine('status', 'waiting for a prompt from Telegram', myRun, { instant: true });
+        setComposer(true, 'Run the tests and fix any failures.');
+        await wait(300);
+        if (!isActive(myRun)) return;
+        const prompt = await waitForPrompt();
+        if (!isActive(myRun)) return;
+        addPhoneUser(prompt, myRun);
+        setComposer(false);
+        setComputerStatus('live', 'working');
+        setPromptLine('session running');
+        setStageStatus('live', 'working');
+        await wait(250);
+        if (!isActive(myRun)) return;
+        addComputerLine('user', prompt, myRun);
+        await wait(400);
+        if (!isActive(myRun)) return;
+        addComputerLine('assistant', 'On it. Running the test suite first.', myRun, { type: true });
+        await wait(700);
+        if (!isActive(myRun)) return;
+        addComputerTool('cargo test', '✕ 2 failed', myRun, true);
+        await wait(500);
+        if (!isActive(myRun)) return;
+        addComputerLine('assistant', 'Two assertions expect the old sidebar behavior. Updating them now.', myRun, { type: true });
+        await wait(850);
+        if (!isActive(myRun)) return;
+        addComputerTool('cargo test', '✓ 148 passed', myRun);
+        await wait(350);
+        if (!isActive(myRun)) return;
+        addComputerLine('status', 'session finished · 1m 08s', myRun);
+        setComputerStatus('done', 'finished');
+        setPromptLine('session finished');
+        showNotification('Session finished', 'Tests fixed — 148 passed');
+        await wait(350);
+        if (!isActive(myRun)) return;
+        addPhoneBot(
+          `<p class="demo-msg-title">All green.</p><p class="demo-msg-body">Fixed two stale assertions. 148 tests pass. Session finished in 1m 08s.</p>`,
+          {},
+          myRun,
+        );
+      }
+
+      async function playFailed(myRun: number) {
+        setComputerStatus('live', 'working');
+        setPromptLine('session running');
+        await wait(300);
+        if (!isActive(myRun)) return;
+        addComputerLine('user', 'Run the full release build.', myRun);
+        await wait(400);
+        if (!isActive(myRun)) return;
+        addComputerLine('assistant', 'Running the release build.', myRun, { type: true });
+        await wait(650);
+        if (!isActive(myRun)) return;
+        addComputerTool('cargo build --release', '✕ build failed · 48s', myRun, true);
+        await wait(350);
+        if (!isActive(myRun)) return;
+        addComputerError('error[E0308]: mismatched types', 'expected `String`, found `&str` · crates/postal-core/src/store/chats.rs:184', myRun);
+        await wait(350);
+        if (!isActive(myRun)) return;
+        addComputerLine('status', 'session failed · 48s', myRun);
+        setComputerStatus('failed', 'failed');
+        setPromptLine('session failed', false);
+        setStageStatus('failed', 'failed');
+        showNotification('Session failed', 'cargo build --release — mismatched types');
+        await wait(400);
+        if (!isActive(myRun)) return;
+        await showTyping(myRun, 600);
+        if (!isActive(myRun)) return;
+        const { buttons } = addPhoneBot(
+          `<p class="demo-msg-title">Session failed</p><p class="demo-msg-body">The release build failed after 48s.</p><code class="demo-msg-code">error[E0308]: mismatched types</code>`,
+          {
+            label: 'opencode-telegram',
+            actions: [{ label: 'Show error tail', value: 'show error tail' }],
+          },
+          myRun,
+        );
+        const choice = await waitForChoice(buttons, myRun);
+        if (!isActive(myRun)) return;
+        addPhoneUser(choice === 'show error tail' ? 'Show error tail' : choice, myRun);
+        await wait(250);
+        if (!isActive(myRun)) return;
+        addPhoneBot(
+          `<p class="demo-msg-body">expected <code>String</code>, found <code>&amp;str</code></p><p class="demo-msg-body">at crates/postal-core/src/store/chats.rs:184</p>`,
+          {},
+          myRun,
+        );
+      }
+
+      async function runScenario(id: string, initial = false) {
+        started = true;
+        currentScenario = id;
+        const myRun = ++runId;
+        const activeButton = scenarioButtons.find((button) => button.dataset.scenario === id);
+        scenarioButtons.forEach((button) => {
+          const active = button === activeButton;
+          button.dataset.active = String(active);
+          button.setAttribute('aria-pressed', String(active));
+        });
+
+        const number = activeButton?.querySelector('.demo-scenario-number')?.textContent ?? '01';
+        const label = activeButton?.querySelector('.demo-scenario-title')?.textContent ?? id;
+        caption.textContent = `${number} / ${label}`;
+
+        if (!initial) {
+          const rect = stage.getBoundingClientRect();
+          if (rect.top < 80 || rect.bottom > window.innerHeight) {
+            stage.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+          }
+        }
+
+        resetStage();
+        if (!initial) {
+          play(computerFeed, { opacity: [0.35, 1], y: [4, 0] }, { duration: 0.25, ease: MOTION.ease.out });
+          play(phoneFeed, { opacity: [0.35, 1], y: [4, 0] }, { duration: 0.25, ease: MOTION.ease.out });
+        }
+        setStageStatus('live', 'running');
+        await wait(initial ? 450 : 220);
+        if (!isActive(myRun)) return;
+
+        addComputerLine('status', 'session postal-ui · connected', myRun, { instant: true });
+        addPhoneSystem('connected · listening for events', myRun);
+
+        let endTone = 'done';
+        let endLabel = 'complete';
+
+        switch (id) {
+          case 'question':
+            await playQuestion(myRun);
+            break;
+          case 'permission': {
+            const approved = await playPermission(myRun);
+            if (!approved) {
+              endTone = 'idle';
+              endLabel = 'stopped';
+            }
+            break;
+          }
+          case 'prompt':
+            await playPrompt(myRun);
+            break;
+          case 'failed':
+            endTone = 'failed';
+            endLabel = 'failed';
+            await playFailed(myRun);
+            break;
+          case 'finished':
+          default:
+            await playFinished(myRun);
+            break;
+        }
+
+        if (isActive(myRun)) {
+          setStageStatus(endTone, endLabel);
+        }
+      }
+
+      scenarioButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const id = button.dataset.scenario;
+          if (id) void runScenario(id);
+        });
+      });
+
+      replay.addEventListener('click', () => {
+        void runScenario(currentScenario);
+      });
+
+      inView(
+        stage,
+        () => {
+          if (started) return;
+          started = true;
+          void runScenario('finished', true);
+        },
+        { margin: MOTION.viewport.margin },
+      );
+  </script>
+</BaseLayout>

@@ -40,6 +40,7 @@ src/
     GlobalRails.astro           fixed dot-matrix rails, section-aware
     ProjectRow.astro            one row in the main projects list
     ContributionCard.astro      one cell in the open-source grid
+    TelegramPlane.astro         inline SVG mark used by the demo
     Footer.astro                contact section + bottom bar
     SEO.astro                   canonical, Open Graph, Twitter, JSON-LD
   lib/
@@ -50,8 +51,12 @@ src/
   pages/
     index.astro                 projects index
     projects/[slug].astro       case-study template for every project
+    projects/opencode-telegram/demo.astro
+                                interactive OpenCode ↔ Telegram simulation
     404.astro
-  styles/global.css             Tailwind 4 @theme tokens + shared CSS
+  styles/
+    global.css                  Tailwind 4 @theme tokens + shared CSS
+    demo.css                    phone/terminal chrome for the simulation
 docs/STYLE-GUIDE.md             the rules this site follows
 ```
 
@@ -70,6 +75,27 @@ or `kind: 'contribution'`.
 
 The next-project link follows the array order, so reordering the array also
 reorders the case-study navigation.
+
+## Interactive demo
+
+`/projects/opencode-telegram/demo/` is a fully client-side simulation of the
+daemon. It shows an OpenCode session next to a Telegram phone and lets you pick
+five interactions: session finished, agent question, permission request, prompt
+from Telegram, and session failure.
+
+- The scenario menu, message feeds, notification banner, typed computer output
+  and phone buttons are all animated with Motion and CSS.
+- Questions and permissions are real interactions: tap an option on the phone
+  and the computer session continues or stops.
+- The prompt scenario enables the phone composer, so you can type your own
+  instruction and send it to the simulated session.
+- No raster images are used. The phone, terminal, icons and logos are CSS and
+  inline SVG.
+- Reduced motion skips the animations but keeps every scenario playable, and
+  no-JS visitors get a readable fallback.
+
+The demo is linked from the opencode-telegram case study and from its row on the
+main projects page.
 
 ## Design notes
 
