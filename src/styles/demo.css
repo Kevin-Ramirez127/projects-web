@@ -829,7 +829,7 @@ html[data-theme="light"] .tg-phone {
   max-width: 82%;
   padding: 0.45rem 0.6rem 0.3rem;
   border-radius: 1rem;
-  border-top-left-radius: 0.25rem;
+  border-bottom-left-radius: 0.25rem;
   background: var(--tg-in);
   color: var(--tg-in-text);
   font-size: 11px;
@@ -851,7 +851,9 @@ html[data-theme="light"] .tg-phone {
 .demo-msg--user {
   margin-left: auto;
   border-top-left-radius: 1rem;
-  border-top-right-radius: 0.25rem;
+  border-top-right-radius: 1rem;
+  border-bottom-right-radius: 0.25rem;
+  border-bottom-left-radius: 1rem;
   background: var(--tg-out);
   color: var(--tg-out-text);
 }
