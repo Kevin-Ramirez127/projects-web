@@ -176,7 +176,5 @@ the main site's `og-cover.png`, so both properties share one identity card.
 
 - Star counts in `meta` are a snapshot taken when the page was written. They are
   copy, not live data; update them when the projects change.
-- `firmauy-website` is a private repository. The case study links to the public
-  FirmaUY project and says so instead of linking to a 404.
 - Contributions are described from my own commits and merged pull requests. The
   maintainers own the direction of those projects.
