@@ -28,14 +28,22 @@ const facts = [
   { label: 'Language', value: project.language },
 ];
 
+const projectUrl = new URL(projectPath(project.slug), Astro.site ?? 'https://www.projects.ramirezkevin.dev').toString();
+
 const jsonLd = [
   {
     '@context': 'https://schema.org',
     '@type': 'SoftwareSourceCode',
     name: project.name,
     description: project.summary,
+    url: projectUrl,
     codeRepository: project.links[0]?.href,
     programmingLanguage: project.language,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'Kevin Ramirez — Projects',
+      url: new URL('/', Astro.site ?? 'https://www.projects.ramirezkevin.dev').toString(),
+    },
     ...(isContribution
       ? { contributor: { '@type': 'Person', name: 'Kevin Ramirez' } }
       : { author: { '@type': 'Person', name: 'Kevin Ramirez' } }),

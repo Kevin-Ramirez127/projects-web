@@ -3,7 +3,8 @@ export const site = {
   title: 'Kevin Ramirez — Projects',
   description:
     'The tools I build and maintain, plus the open-source projects I contribute to: developer tooling, self-hosted software and native desktop apps.',
-  url: 'https://projects.ramirezkevin.dev',
+  // Keep in sync with the fallback in src/lib/seo-config.mjs.
+  url: 'https://www.projects.ramirezkevin.dev',
   locale: 'en_US',
   language: 'en',
   author: 'Kevin Ramirez',

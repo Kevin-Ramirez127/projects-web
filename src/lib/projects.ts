@@ -47,7 +47,7 @@ export const projects: Project[] = [
     featured: true,
     tagline: 'Your coding agent can now tap you on the shoulder.',
     summary:
-      'A Go daemon that bridges OpenCode sessions to Telegram. Finished runs, failures, agent questions and permission requests land in an allowlisted chat — and you can answer from your phone.',
+      'A Go daemon that bridges OpenCode sessions to Telegram. Runs, failures, questions and permissions land in an allowlisted chat you can answer from your phone.',
     meta: 'Go · ★ 4',
     year: '2026',
     role: 'Creator & maintainer',
@@ -115,7 +115,7 @@ export const projects: Project[] = [
     kind: 'main',
     tagline: 'One quiet feed for the repositories you actually follow.',
     summary:
-      'A self-hosted GitHub dashboard that turns tracked repositories into one newest-first stream of pushes, pull requests and issues. Public to read, admin-only to manage.',
+      'A self-hosted GitHub dashboard that turns repositories into a newest-first stream of pushes, pull requests and issues. Public to read, admin-only to manage.',
     meta: 'Go · Astro',
     year: '2026',
     role: 'Creator & maintainer',
@@ -315,7 +315,7 @@ export const projects: Project[] = [
     kind: 'main',
     tagline: 'Remember what you installed, not what came with it.',
     summary:
-      'One wrapper for pacman, yay, paru, apt, dnf and friends. It runs the install as usual, then records the packages you chose — with tags — in a readable JSONC file.',
+      'One wrapper for pacman, yay, paru, apt, dnf and friends. It installs as usual, then records the packages you chose — with tags — in a readable JSONC file.',
     meta: 'Go · ★ 2',
     year: '2026',
     role: 'Creator & maintainer',
@@ -543,5 +543,5 @@ export function getProject(slug: string): Project | undefined {
 }
 
 export function projectPath(slug: string): string {
-  return `/projects/${slug}/`;
+  return `/projects/${slug}`;
 }
