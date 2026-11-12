@@ -25,7 +25,7 @@ changes.
 | `ink` | `#222222` | `#e5e5e5` | page background |
 | `ink-soft` | `#2a2a2a` | `#eeeef2` | card / hover surface |
 | `bone` | `#e5e5e5` | `#1e1e2a` | headings, primary text |
-| `bone-dim` | `#D9CFB8` | `#454555` | tags, secondary text |
+| `bone-dim` | `#C9C6DC` | `#454555` | tags, secondary text |
 | `bone-faint` | `#A89D87` | `#5f5f70` | labels, meta, placeholders |
 | `accent` | `#8E8BFF` | `#4c4cd9` | bracket links, highlights |
 | `accent-dim` | `#7172D8` | `#3b3bb0` | hover borders, focus fallbacks |
