@@ -66,6 +66,14 @@ Rules:
 
 ## 5. Components
 
+### Header (`src/components/Nav.astro`)
+
+- Left: the theme toggle. Right: the `[ ramirezkevin.dev ↗ ]` link back to
+  the main site, followed by `[ menu ]`.
+- The link is always visible so this subdomain never feels detached from the
+  portfolio. Below `sm` it shortens to `[ main site ↗ ]`; it always opens in a
+  new tab.
+
 ### Bracket link (`src/components/BracketLink.astro`)
 
 ```html

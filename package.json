@@ -10,6 +10,8 @@
     "check": "astro check"
   },
   "dependencies": {
+    "@easeo/astro": "^0.2.0",
+    "@easeo/core": "^0.2.0",
     "astro": "^5.13.5",
     "motion": "^14.0.0"
   },

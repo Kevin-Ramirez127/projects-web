@@ -47,7 +47,7 @@ export const projects: Project[] = [
     featured: true,
     tagline: 'Your coding agent can now tap you on the shoulder.',
     summary:
-      'A Go daemon that bridges OpenCode sessions to Telegram. Finished runs, failures, agent questions and permission requests land in an allowlisted chat — and you can answer from your phone.',
+      'A Go daemon that bridges OpenCode sessions to Telegram. Runs, failures, questions and permissions land in an allowlisted chat you can answer from your phone.',
     meta: 'Go · ★ 4',
     year: '2026',
     role: 'Creator & maintainer',
@@ -115,7 +115,7 @@ export const projects: Project[] = [
     kind: 'main',
     tagline: 'One quiet feed for the repositories you actually follow.',
     summary:
-      'A self-hosted GitHub dashboard that turns tracked repositories into one newest-first stream of pushes, pull requests and issues. Public to read, admin-only to manage.',
+      'A self-hosted GitHub dashboard that turns repositories into a newest-first stream of pushes, pull requests and issues. Public to read, admin-only to manage.',
     meta: 'Go · Astro',
     year: '2026',
     role: 'Creator & maintainer',
@@ -315,7 +315,7 @@ export const projects: Project[] = [
     kind: 'main',
     tagline: 'Remember what you installed, not what came with it.',
     summary:
-      'One wrapper for pacman, yay, paru, apt, dnf and friends. It runs the install as usual, then records the packages you chose — with tags — in a readable JSONC file.',
+      'One wrapper for pacman, yay, paru, apt, dnf and friends. It installs as usual, then records the packages you chose — with tags — in a readable JSONC file.',
     meta: 'Go · ★ 2',
     year: '2026',
     role: 'Creator & maintainer',
@@ -482,57 +482,6 @@ export const projects: Project[] = [
       note: `Postal is maintained by Emiliano Gandini and its contributors. My work is merged upstream; the protocol and storage design are the maintainers'.`,
     },
   },
-  {
-    slug: 'firmauy-website',
-    name: 'firmauy-website',
-    kind: 'contribution',
-    tagline: 'The public face of open-source electronic signature tooling for Uruguay.',
-    summary:
-      'A single static Spanish page with no build step and no dependencies. I added the light/dark theme, the transition between them, and the responsive details.',
-    meta: 'HTML · CSS · JS',
-    year: '2026',
-    role: 'Contributor · theme, responsive, visual polish',
-    status: 'Contributed',
-    language: 'HTML / CSS / JS',
-    stack: ['HTML', 'CSS', 'vanilla JS'],
-    owner: 'carlosplanchon',
-    links: [
-      {
-        label: 'FirmaUY project',
-        href: 'https://github.com/carlosplanchon/firmauy',
-        external: true,
-      },
-    ],
-    intro: [
-      `FirmaUY is a set of open-source tools for signing and verifying documents with the Uruguayan electronic ID card. The website is the front door: one static Spanish page, no build step, no dependencies, published from the repository root.`,
-      `I contributed the light/dark theme and the details around it: the toggle, the transition between themes, light and dark screenshots, responsive behavior, external links that open in a new tab, and a pass over colors and typography.`,
-    ],
-    contribution: {
-      commits: 8,
-      intro: [
-        `The site had to feel as considered as the desktop app it presents. My changes were visual and interaction work, made directly on the static page.`,
-      ],
-      work: [
-        {
-          title: 'Light and dark mode',
-          body: `Added a theme toggle that respects the visitor's choice, persists it, and swaps the screenshots to match. The page ships both light and dark image sets, so the theme is real rather than a CSS filter over one set.`,
-        },
-        {
-          title: 'The transition',
-          body: `Built the theme switch transition: a 300 ms cross-fade of background, text and border colors, skipped under <code>prefers-reduced-motion</code> so the switch is instant instead of animated.`,
-        },
-        {
-          title: 'Responsive pass',
-          body: `Adjusted the layout and typography so the page reads well on a phone, not just a desktop browser.`,
-        },
-        {
-          title: 'Visual polish',
-          body: `Changed colors and type, refined spacing and details, and made external links open in a new tab so the page does not lose the reader.`,
-        },
-      ],
-      note: `The website is maintained by Carlos Planchón and its repository is private. The public FirmaUY project is linked above.`,
-    },
-  },
 ];
 
 export const mainProjects = projects.filter((project) => project.kind === 'main');
@@ -543,5 +492,5 @@ export function getProject(slug: string): Project | undefined {
 }
 
 export function projectPath(slug: string): string {
-  return `/projects/${slug}/`;
+  return `/projects/${slug}`;
 }
