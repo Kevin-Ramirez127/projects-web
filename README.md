@@ -40,6 +40,10 @@ src/
     GlobalRails.astro           fixed dot-matrix rails, section-aware
     ProjectRow.astro            one row in the main projects list
     ContributionCard.astro      one cell in the open-source grid
+    TelegramPlane.astro         inline SVG mark used by the demo
+    OpenCodeWordmark.astro      official OpenCode wordmark (SVG)
+    OpenCodeLogo.astro          official OpenCode logo (SVG)
+    OpencodeTelegramDemo.astro  interactive OpenCode ↔ Telegram simulation
     Footer.astro                contact section + bottom bar
     SEO.astro                   canonical, Open Graph, Twitter, JSON-LD
   lib/
@@ -51,7 +55,9 @@ src/
     index.astro                 projects index
     projects/[slug].astro       case-study template for every project
     404.astro
-  styles/global.css             Tailwind 4 @theme tokens + shared CSS
+  styles/
+    global.css                  Tailwind 4 @theme tokens + shared CSS
+    demo.css                    phone/terminal chrome for the simulation
 docs/STYLE-GUIDE.md             the rules this site follows
 ```
 
@@ -61,8 +67,8 @@ All content lives in `src/lib/projects.ts`. Each entry is either `kind: 'main'`
 or `kind: 'contribution'`.
 
 - `summary`, `tagline`, `intro` and `sections` feed the card and case study.
-- `links` render as bracket links in the hero and sidebar. Add `external: true`
-  for anything that leaves the site.
+- `links` render as bracket links in the hero. Add `external: true` for
+  anything that leaves the site.
 - Contributions use `contribution` instead of `sections`: `commits`,
   `mergedPrs`, a list of `work` items, a `prUrl` and an honest `note` about who
   maintains the project.
@@ -70,6 +76,61 @@ or `kind: 'contribution'`.
 
 The next-project link follows the array order, so reordering the array also
 reorders the case-study navigation.
+
+## Interactive demo
+
+The opencode-telegram case study embeds a fully client-side simulation of the
+daemon, directly under the "What it is" section. It shows an OpenCode session
+next to a Telegram phone and lets you pick five interactions: session finished,
+agent question, permission request, prompt from Telegram, and bot commands.
+
+- The scenario menu, message feeds, notification banner, typed computer output
+  and phone buttons are all animated with Motion and CSS.
+- Questions and permissions are real interactions: tap an option on the phone
+  and the computer session continues or stops.
+- The prompt scenario preloads a read-only instruction and pulses the send
+  button; tap send to run it in the simulated session.
+- The Telegram `Menu` button is available only in the Bot commands scenario,
+  where it becomes a rounded `#64B5EF` pill. It pulses the first time that
+  scenario opens, then lists `/session`, `/settings`, `/exit`, `/agents`,
+  `/models` (three models) and `/usage`. Selecting one sends the command and
+  returns a bot response; `/models`, `/agents` and `/exit` also expose inline
+  actions. `/session` shows three recent sessions to bind.
+- The Prompt from Telegram scenario pulses the send button until the prompt is
+  sent.
+- `/exit` → Stop daemon disables the Menu button and shows a reset tooltip so
+  the simulation can start again.
+- No raster images are used. The phone, terminal, icons and logos are CSS and
+  inline SVG.
+- Reduced motion skips the animations but keeps every scenario playable, and
+  no-JS visitors get a readable fallback.
+
+### Design systems
+
+The page chrome follows this site's style guide. The two devices use their own
+design systems, with light and dark variants that follow the site theme:
+
+- The OpenCode console uses OpenCode's TUI language. Dark: `#0a0a0a` ground,
+  raised `#141414` / `#1e1e1e` surfaces, light wordmark, blue composer rule.
+  Light: `#ffffff` / `#fafafa` surfaces, dark wordmark, the same OpenTUI Mono,
+  syntax colors and status bar. The session state sits in a small line below
+  the window, not inside the composer.
+- The Telegram phone uses Telegram's themes. Dark: `#17212b` header, `#0e1621`
+  chat, dark incoming bubbles and `#2b5278` outgoing bubbles. Light: `#1a73c8`
+  header, white incoming bubbles and `#e1ffc7` outgoing bubbles. Both keep the
+  inline keyboards, system UI font, patterned background and iOS-style
+  notification.
+
+The OpenCode status bar also carries a green `✈ Telegram on` indicator
+(`#3fb950` in dark mode, a darker green in light mode for contrast) before the
+OpenCode shortcuts.
+
+The OpenTUI Mono font is self-hosted at `public/fonts/opentui-mono-*.woff2`
+under the SIL Open Font License (`public/fonts/OpenTUIMono-OFL.txt`). The
+OpenCode wordmark and logo are the official brand SVGs.
+
+The demo lives inline in the opencode-telegram case study, in the
+`OpencodeTelegramDemo` component.
 
 ## Design notes
 

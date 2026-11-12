@@ -25,7 +25,7 @@ changes.
 | `ink` | `#222222` | `#e5e5e5` | page background |
 | `ink-soft` | `#2a2a2a` | `#eeeef2` | card / hover surface |
 | `bone` | `#e5e5e5` | `#1e1e2a` | headings, primary text |
-| `bone-dim` | `#D9CFB8` | `#454555` | tags, secondary text |
+| `bone-dim` | `#C9C6DC` | `#454555` | tags, secondary text |
 | `bone-faint` | `#A89D87` | `#5f5f70` | labels, meta, placeholders |
 | `accent` | `#8E8BFF` | `#4c4cd9` | bracket links, highlights |
 | `accent-dim` | `#7172D8` | `#3b3bb0` | hover borders, focus fallbacks |
@@ -61,8 +61,8 @@ Rules:
 - Main projects are an editorial list: index, name, summary, tags, actions.
 - Contributions are a 1px hairline grid: `gap-px bg-line border hairline` with
   `bg-ink` cells.
-- Detail pages: `max-w-6xl`, main column + `17rem` sticky sidebar; the sidebar
-  is hidden below `lg` because the hero already carries links and facts.
+- Detail pages: `max-w-6xl`, one reading column. Prose sections cap at
+  `max-w-3xl`; wide content such as the interactive demo uses the full width.
 
 ## 5. Components
 
@@ -116,6 +116,29 @@ and mask the rails with an opaque `bg-ink`.
   merged PRs and year, followed by numbered work items and an honest note about
   maintainership.
 - Closing `...NEXT...` link plus `[ All projects ]`.
+
+### Interactive demo exception
+
+The live demo embedded in the opencode-telegram case study contains two product
+mockups that use their own design systems instead of this guide's tokens, but
+still follow the site light/dark mode:
+
+- The OpenCode console follows OpenCode's TUI. Dark: `#0a0a0a` / `#141414` /
+  `#1e1e1e` surfaces, light wordmark, blue composer rule. Light: `#ffffff` /
+  `#fafafa` surfaces and dark wordmark. It keeps OpenTUI Mono, syntax colors
+  and the status bar. The session state is shown below the window; the composer
+  stays as `Ask anything...`.
+- The Telegram phone follows Telegram's themes. Dark: `#17212b` header,
+  `#0e1621` chat, dark bubbles. Light: `#1a73c8` header, white incoming and
+  `#e1ffc7` outgoing bubbles. Inline keyboards, the system UI font and the
+  iOS-style notification stay in both.
+
+The green `✈ Telegram on` status-bar indicator uses `#3fb950` in dark mode and
+a darker green in light mode for contrast.
+
+The surrounding demo chrome (toolbar, scenario menu, captions) still uses the
+site tokens. Do not refactor the mockups to `--color-*` variables — they are
+supposed to look like the real products, with their own light/dark palettes.
 
 ### Section header
 
