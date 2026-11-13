@@ -492,5 +492,5 @@ export function getProject(slug: string): Project | undefined {
 }
 
 export function projectPath(slug: string): string {
-  return `/projects/${slug}`;
+  return `/${slug}`;
 }

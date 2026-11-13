@@ -3,6 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import easeo from '@easeo/astro';
 import { seoConfig } from './src/lib/seo-config.mjs';
+import { projects } from './src/lib/projects';
 
 export default defineConfig({
   // SITE_URL still overrides the public origin when deploying somewhere else.
@@ -41,7 +42,10 @@ export default defineConfig({
         },
         rules: [
           { match: '/', expect: { schemaRequired: true, schemaTypes: ['WebSite'] } },
-          { match: '/projects/*', expect: { schemaRequired: true, schemaTypes: ['Article'] } },
+          ...projects.map(({ slug }) => ({
+            match: `/${slug}`,
+            expect: { schemaRequired: true, schemaTypes: ['Article'] },
+          })),
         ],
       },
     }),

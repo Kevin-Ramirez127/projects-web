@@ -1,9 +1,9 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import Nav from '../../components/Nav.astro';
-import BracketLink from '../../components/BracketLink.astro';
-import OpencodeTelegramDemo from '../../components/OpencodeTelegramDemo.astro';
-import { projectPath, projects, type Project } from '../../lib/projects';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import BracketLink from '../components/BracketLink.astro';
+import OpencodeTelegramDemo from '../components/OpencodeTelegramDemo.astro';
+import { projectPath, projects, type Project } from '../lib/projects';
 
 export function getStaticPaths() {
   return projects.map((project) => ({
