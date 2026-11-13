@@ -57,7 +57,7 @@ src/
     site.ts                     site name, description, social links
   pages/
     index.astro                 projects index
-    projects/[slug].astro       case-study template for every project
+    [slug].astro                case-study template for every project
     404.astro
   styles/
     global.css                  Tailwind 4 @theme tokens + shared CSS

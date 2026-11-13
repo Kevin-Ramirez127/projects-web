@@ -115,7 +115,7 @@ column so they never collide with the rails.
 the upstream status (`Merged upstream` / `Contributed`). Cards sit in a 1px grid
 and mask the rails with an opaque `bg-ink`.
 
-### Detail page (`src/pages/projects/[slug].astro`)
+### Detail page (`src/pages/[slug].astro`)
 
 - Back link, mono kicker with kind + index, title, status chip, tagline, links.
 - Four-cell facts grid: role, year, upstream/status, language.
@@ -213,7 +213,7 @@ Library: [`motion`](https://motion.dev/) (vanilla JS). Config:
    `kind: 'contribution'`.
 2. Fill `summary`, `tagline`, `intro`, `stack`, `links` and either `sections` or
    `contribution`.
-3. The index and `/projects/<slug>` page pick it up automatically.
+3. The index and `/<slug>` page pick it up automatically.
 4. Keep the next-project order sensible: it follows the array.
 5. If it belongs in the rail copy, update `GlobalRails.astro` (and keep the
    section order intact).
