@@ -842,11 +842,12 @@ const phoneCommands = [
         });
       }
 
-      async function handleCommandSelection(id: string) {
+      function handleCommandSelection(id: string) {
         if (!COMMANDS[id]) return;
         setCommandMenu(false);
         const myRun = runId;
-        await scrollToConsole();
+        /* Bot commands only answer on the phone, so keep the phone in view.
+           Scrolling stays tied to OpenCode output, not to the menu choice. */
         if (pendingCommandSelection) {
           const resolve = pendingCommandSelection;
           pendingCommandSelection = null;
@@ -1206,7 +1207,7 @@ const phoneCommands = [
       commandItems.forEach((item) => {
         item.addEventListener('click', () => {
           const id = item.dataset.command;
-          if (id) void handleCommandSelection(id);
+          if (id) handleCommandSelection(id);
         });
       });
 
