@@ -423,38 +423,19 @@ const phoneCommands = [
       };
 
       /* Hand control back to the console: bring it into view before a scenario
-         continues, so the next animation is never played off-screen. The
-         scroll is intentionally short (100ms) and awaited by every caller. */
-      const CONSOLE_SCROLL_MS = 100;
+         continues, so the next animation is never played off-screen. */
       const CONSOLE_SCROLL_OFFSET = 88; /* fixed 80px header + 8px breathing room */
 
-      const scrollToConsole = (): Promise<void> => {
-        if (!consolePanel) return Promise.resolve();
+      const scrollToConsole = () => {
+        if (!consolePanel) return;
         const rect = consolePanel.getBoundingClientRect();
         /* Side-by-side layouts can already show the console; don't move the
            page for interactions the visitor can already see. */
         if (rect.top >= CONSOLE_SCROLL_OFFSET - 1 && rect.bottom <= window.innerHeight + 1) {
-          return Promise.resolve();
+          return;
         }
         const target = Math.max(0, window.scrollY + rect.top - CONSOLE_SCROLL_OFFSET);
-        const start = window.scrollY;
-        const distance = target - start;
-        if (Math.abs(distance) < 1) return Promise.resolve();
-        if (reduceMotion) {
-          window.scrollTo({ top: target, behavior: 'instant' });
-          return Promise.resolve();
-        }
-        return new Promise((resolve) => {
-          const startTime = performance.now();
-          const step = (now: number) => {
-            const progress = Math.min(1, (now - startTime) / CONSOLE_SCROLL_MS);
-            const eased = 1 - (1 - progress) ** 3;
-            window.scrollTo({ top: start + distance * eased, behavior: 'instant' });
-            if (progress < 1) requestAnimationFrame(step);
-            else resolve();
-          };
-          requestAnimationFrame(step);
-        });
+        window.scrollTo({ top: target, behavior: 'instant' });
       };
 
       const setCommandMenu = (open: boolean, moveFocus = true) => {
@@ -745,7 +726,8 @@ const phoneCommands = [
                 });
                 button.classList.add('is-picked');
                 play(button, { scale: [1, 0.94, 1] }, { duration: 0.18, ease: MOTION.ease.out });
-                void scrollToConsole().then(() => resolve(button.dataset.value ?? ''));
+                scrollToConsole();
+                resolve(button.dataset.value ?? '');
               },
               { once: true },
             );
@@ -759,7 +741,7 @@ const phoneCommands = [
         });
       }
 
-      async function submitPrompt() {
+      function submitPrompt() {
         if (!pendingPrompt) return;
         const value = phoneInput.value.trim();
         if (!value) {
@@ -771,17 +753,15 @@ const phoneCommands = [
         phoneSend.classList.remove('is-attention');
         phoneInput.disabled = true;
         phoneSend.disabled = true;
-        await scrollToConsole();
+        scrollToConsole();
         resolve(value);
       }
 
-      phoneSend.addEventListener('click', () => {
-        void submitPrompt();
-      });
+      phoneSend.addEventListener('click', submitPrompt);
       phoneInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
           event.preventDefault();
-          void submitPrompt();
+          submitPrompt();
         }
       });
 
