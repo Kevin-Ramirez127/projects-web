@@ -104,6 +104,10 @@ agent question, permission request, prompt from Telegram, and bot commands.
   sent.
 - `/exit` → Stop daemon disables the Menu button and shows a reset tooltip so
   the simulation can start again.
+- On narrow screens the phone sits above the console, so answering a question,
+  approving a permission or sending a prompt smooth-scrolls to the OpenCode
+  console, then resumes the animation once the scroll settles. Bot commands
+  only reply on the phone, so selecting one never moves the page.
 - No raster images are used. The phone, terminal, icons and logos are CSS and
   inline SVG.
 - Reduced motion skips the animations but keeps every scenario playable, and

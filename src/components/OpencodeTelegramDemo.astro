@@ -49,7 +49,7 @@ const phoneCommands = [
 
 <div
   id="demo-stage"
-  class="reveal demo-shell scroll-mt-24 border hairline bg-ink-soft/40 p-3 md:p-5"
+  class="reveal demo-shell scroll-mt-24 border hairline bg-ink-soft/40 px-2 py-3 sm:px-3 md:p-5"
   role="region"
   aria-label="OpenCode and Telegram simulation"
 >
@@ -291,6 +291,7 @@ const phoneCommands = [
     };
 
     const stage = byId<HTMLElement>('demo-stage');
+    const consolePanel = document.querySelector<HTMLElement>('.oc-console');
     const computerFeed = byId<HTMLElement>('computer-feed');
     const phoneFeed = byId<HTMLElement>('phone-feed');
     const commandMenu = byId<HTMLElement>('tg-command-menu');
@@ -419,6 +420,42 @@ const phoneCommands = [
 
       const scrollFeed = (feed: HTMLElement) => {
         feed.scrollTop = feed.scrollHeight;
+      };
+
+      /* Hand control back to the console: bring it into view before a scenario
+         continues, so the next animation is never played off-screen. Uses the
+         native smooth scroll and resolves once it settles. */
+      const CONSOLE_SCROLL_OFFSET = 88; /* fixed 80px header + 8px breathing room */
+
+      const scrollToConsole = (): Promise<void> => {
+        if (!consolePanel) return Promise.resolve();
+        const rect = consolePanel.getBoundingClientRect();
+        /* Side-by-side layouts can already show the console; don't move the
+           page for interactions the visitor can already see. */
+        if (rect.top >= CONSOLE_SCROLL_OFFSET - 1 && rect.bottom <= window.innerHeight + 1) {
+          return Promise.resolve();
+        }
+        const target = Math.max(0, window.scrollY + rect.top - CONSOLE_SCROLL_OFFSET);
+        if (Math.abs(window.scrollY - target) < 1) return Promise.resolve();
+        if (reduceMotion) {
+          window.scrollTo({ top: target, behavior: 'instant' });
+          return Promise.resolve();
+        }
+        window.scrollTo({ top: target, behavior: 'smooth' });
+        return new Promise((resolve) => {
+          let settled = false;
+          let guard = 0;
+          const finish = () => {
+            if (settled) return;
+            settled = true;
+            window.removeEventListener('scrollend', finish);
+            window.clearTimeout(guard);
+            resolve();
+          };
+          if ('onscrollend' in window) window.addEventListener('scrollend', finish, { once: true });
+          /* Safari and older browsers lack scrollend; keep the demo moving. */
+          guard = window.setTimeout(finish, 900);
+        });
       };
 
       const setCommandMenu = (open: boolean, moveFocus = true) => {
@@ -709,7 +746,7 @@ const phoneCommands = [
                 });
                 button.classList.add('is-picked');
                 play(button, { scale: [1, 0.94, 1] }, { duration: 0.18, ease: MOTION.ease.out });
-                resolve(button.dataset.value ?? '');
+                void scrollToConsole().then(() => resolve(button.dataset.value ?? ''));
               },
               { once: true },
             );
@@ -723,7 +760,7 @@ const phoneCommands = [
         });
       }
 
-      function submitPrompt() {
+      async function submitPrompt() {
         if (!pendingPrompt) return;
         const value = phoneInput.value.trim();
         if (!value) {
@@ -735,14 +772,17 @@ const phoneCommands = [
         phoneSend.classList.remove('is-attention');
         phoneInput.disabled = true;
         phoneSend.disabled = true;
+        await scrollToConsole();
         resolve(value);
       }
 
-      phoneSend.addEventListener('click', submitPrompt);
+      phoneSend.addEventListener('click', () => {
+        void submitPrompt();
+      });
       phoneInput.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') {
           event.preventDefault();
-          submitPrompt();
+          void submitPrompt();
         }
       });
 
@@ -807,6 +847,8 @@ const phoneCommands = [
         if (!COMMANDS[id]) return;
         setCommandMenu(false);
         const myRun = runId;
+        /* Bot commands only answer on the phone, so keep the phone in view.
+           Scrolling stays tied to OpenCode output, not to the menu choice. */
         if (pendingCommandSelection) {
           const resolve = pendingCommandSelection;
           pendingCommandSelection = null;
